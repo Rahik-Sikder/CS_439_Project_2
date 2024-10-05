@@ -170,7 +170,7 @@ void thread_print_stats (void)
 tid_t thread_create (const char *name, int priority, thread_func *function,
                      void *aux)
 {
-
+  printf("thread create execute\n");
   struct thread *t;
   struct kernel_thread_frame *kf;
   struct switch_entry_frame *ef;
@@ -212,6 +212,7 @@ tid_t thread_create (const char *name, int priority, thread_func *function,
   //Milan started driving
   sema_up (&priority_sema);
   // Milan finished driving
+  printf("thread create finished\n");
   return tid;
 }
 
