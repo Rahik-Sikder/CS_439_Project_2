@@ -1,0 +1,33 @@
+Name        Date        Notes
+
+Milan       9/26        Unfinished timer.c, playing around
+                        with Pintos
+
+Jake        9/26        Wrote timer_interupt 
+
+Rahik       9/26        Passing 14/18, failing alarm-simultaneous 
+
+Milan       9/27        Working on priority scheduling.
+                        *returned from break
+
+Jake        9/27        Fixed scheduling bug and semaphore priority,
+                        also fixed mistakes in dates
+
+Rahik       9/27        Fixed timer.c, increasing timer_interupt efficiency
+
+Milan       9/27        Implemented priority scheduling with condvars
+
+Jake        9/27        Priority donation single
+
+Rahik       9/27        Working on priority donation 
+                        Last commit of the night -> resume in morning
+
+Milan       9/27        Resuming -> Finished donate-nest
+
+Jake        9/27        Fixed set_thread_priority issues
+
+Rahik       9/27        Fixed priority-donate-sema
+
+Milan       9/27        Took 15 min lunch break -> Passing all test cases
+
+Jake        9/27        synch formatting
