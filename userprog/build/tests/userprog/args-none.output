@@ -1,5 +1,5 @@
 Copying tests/userprog/args-none to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/GJZ39BMJcv.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/2Z_Ii1gNzT.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -11,7 +11,7 @@ Pintos booting with 3,968 kB RAM...
 367 pages available in user pool.
 thread create execute
 thread create finished
-Calibrating timer...  654,540,800 loops/s.
+Calibrating timer...  653,721,600 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 179 sectors (89 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -29,7 +29,15 @@ thread create execute
 thread create finished
 end process execute
 in setup_stack
-done with setup stack
+new SP: 	0xc0000000
+SP loop: 	0xbffffff6
+SP pad: 	0xbffffff4
+SP null(1): 	0xbffffff0
+SP ptrs: 	0xbfffffec
+SP argv: 	0xbfffffe8
+SP argc: 	0xbfffffe4
+SP return: 	0xbfffffe0
+done with setup :)stack
 Page fault at 0xc0000008: rights violation error reading page in user context.
 There is no crying in Pintos!
 args-none: dying due to interrupt 0x0e (#PF Page-Fault Exception).
