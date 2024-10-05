@@ -1,0 +1,53 @@
+Copying tests/userprog/args-multiple to scratch partition...
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/JPjw32OSTW.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
+Booting from Hard Disk...
+PPiiLLoo  hhddaa1
+1
+LLooaaddiinngg.....................
+Kernel command line: -q -f extract run 'args-multiple some arguments for you!'
+Pintos booting with 3,968 kB RAM...
+367 pages available in kernel pool.
+367 pages available in user pool.
+Calibrating timer...  652,083,200 loops/s.
+hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
+hda1: 179 sectors (89 kB), Pintos OS kernel (20)
+hda2: 4,096 sectors (2 MB), Pintos file system (21)
+hda3: 143 sectors (71 kB), Pintos scratch (22)
+filesys: using hda2
+scratch: using hda3
+Formatting file system...done.
+Boot complete.
+Extracting ustar archive from scratch device into file system...
+Putting 'args-multiple' into the file system...
+Erasing ustar archive...
+Executing 'args-multiple some arguments for you!':
+start process execute
+filename passed to load: args-multiple some arguments for you!
+end process execute
+in setup_stack
+filename passed into setup: args-multiple
+args passed into setup: some arguments for you!
+filenamed added to stack: args-multiple
+in loop added: some
+in loop added: arguments
+in loop added: for
+in loop added: you!
+in add pts loop added: 0xbfffffda
+in add pts loop added: 0xbfffffdf
+in add pts loop added: 0xbfffffe3
+in add pts loop added: 0xbfffffed
+in add pts loop added: 0xbffffff2
+setting arg v pointer: 0xbfffffc0
+setting arg c: 5
+Page fault at 0xc0000008: rights violation error reading page in user context.
+There is no crying in Pintos!
+args-multiple: dying due to interrupt 0x0e (#PF Page-Fault Exception).
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80486aa
+ cr2=c0000008 error=00000005
+ eax=00000000 ebx=00000000 ecx=00000000 edx=00000000
+ esi=00000000 edi=00000000 esp=bfffffe4 ebp=bffffffc
+ cs=001b ds=0023 es=0023 ss=0023
+sent kill to process 2694131, waiting for it to end
+
+TIMEOUT after 60 seconds of wall-clock time - load average: 1.03, 0.63, 0.60
