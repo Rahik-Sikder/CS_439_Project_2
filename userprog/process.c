@@ -498,6 +498,9 @@ static bool setup_stack (void **esp, char *filename, char* args)
   // printf("SP return: \t%p\n", sp);
   *((uint32_t *) sp) = 0;
   // printf("done with setup :)stack\n");
+
+  hex_dump((uintptr_t) sp, sp, (uintptr_t) PHYS_BASE - (uintptr_t) sp, true);
+  
   return success;
 }
 
