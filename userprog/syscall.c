@@ -28,8 +28,12 @@ void syscall_handler (struct intr_frame *f) {
             shutdown_power_off();
             break;
         case SYS_EXIT:
-            // int status = *(int *)(((char*)f->esp) + 4); 
-            process_exit();
+            int status = *(int *)(((char*)f->esp) + 4); 
+            struct thread *cur = thread_current();  // Get current thread/process
+            cur->exit_status = status;              // Set exit status
+
+            thread_exit();
+
             break;
     }
 }

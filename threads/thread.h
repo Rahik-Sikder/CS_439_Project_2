@@ -98,7 +98,7 @@ struct thread
   struct semaphore sema_sleep; /* Semaphore that blocks and wakes sleeping */
   struct thread *road_block;
   struct list lock_waiters;
-
+  int exit_status;
   /* Shared between thread.c and synch.c. */
   struct list_elem elem; /* List element. */
 
