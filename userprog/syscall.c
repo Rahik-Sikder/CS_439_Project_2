@@ -3,42 +3,40 @@
 #include <syscall-nr.h>
 #include "threads/interrupt.h"
 #include "threads/thread.h"
+#include "userprog/pagedir.h"
+#include "threads/vaddr.h"
 
 static void syscall_handler (struct intr_frame *);
-// static void halt_hander (struct intr_frame *f UNUSED);
-// static void exit_handler (struct intr_frame *f UNUSED);
+bool validate_user_address(const void *addr);
 
 void syscall_init (void)
 {
-  // intr_register_int (0x0, 0, INTR_ON, halt_hander, "halt");
-  // intr_register_int (0x1, 3, INTR_ON, exit_handler, "exit");
   intr_register_int (0x30, 3, INTR_ON, syscall_handler, "syscall");
-
 }
 
-static void syscall_handler (struct intr_frame *f UNUSED)
-{
-  if(f->vec_no==0){
-    shutdown_power_off();
-  }
-  else if (f->vec_no==1){
-    process_exit();
-    return 0;
-  }
+void syscall_handler (struct intr_frame *f) {
+    // Get the system call number from the stack
+
+    int syscall_number = *(int*)f->esp; 
+
+    if(!validate_user_address(f->esp)){
+      return;
+    }
+
+    switch (syscall_number) {
+        case SYS_HALT:
+            shutdown_power_off();
+            break;
+        case SYS_EXIT:
+            // int status = *(int *)(((char*)f->esp) + 4); 
+            process_exit();
+            break;
+    }
 }
 
-static void halt_hander (struct intr_frame *f UNUSED)
-{
-  shutdown_power_off();
+bool validate_user_address(const void *addr) {
+    if (addr == NULL || !is_user_vaddr(addr) || pagedir_get_page(thread_current()->pagedir, addr) == NULL) {
+        return false;
+    }
+    return true;
 }
-
-static void exit_handler (struct intr_frame *f UNUSED)
-{
-  process_exit();
-  return 0;
-}
-
-// static void exec_handler (struct intr_frame *f UNUSED)
-// {
-//   process_exit();
-// }

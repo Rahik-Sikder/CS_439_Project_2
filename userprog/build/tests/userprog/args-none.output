@@ -1,5 +1,5 @@
 Copying tests/userprog/args-none to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/sUmTOIMydS.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/tDALYyr3LO.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -9,7 +9,7 @@ Kernel command line: -q -f extract run args-none
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  656,998,400 loops/s.
+Calibrating timer...  348,160,000 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 179 sectors (89 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -34,14 +34,14 @@ setting arg v pointer: 0xbfffffec
 setting arg c: 1
 bfffffe0  00 00 00 00 01 00 00 00-ec ff ff bf f6 ff ff bf |................|
 bffffff0  00 00 00 00 00 00 61 72-67 73 2d 6e 6f 6e 65 00 |......args-none.|
-Page fault at 0xc0000008: rights violation error reading page in user context.
+Page fault at 0x8049fd1: not present error reading page in user context.
 There is no crying in Pintos!
 args-none: dying due to interrupt 0x0e (#PF Page-Fault Exception).
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x80486aa
- cr2=c0000008 error=00000005
- eax=00000000 ebx=00000000 ecx=00000000 edx=00000000
- esi=00000000 edi=00000000 esp=bfffffe4 ebp=bffffffc
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0x8049fd1
+ cr2=08049fd1 error=00000004
+ eax=00000000 ebx=00000000 ecx=0000000b edx=0804b9c0
+ esi=00000000 edi=00000000 esp=bfffff9c ebp=bfffffbc
  cs=001b ds=0023 es=0023 ss=0023
-sent kill to process 2715446, waiting for it to end
+sent kill to process 2900390, waiting for it to end
 
-TIMEOUT after 60 seconds of wall-clock time - load average: 1.91, 1.64, 1.41
+TIMEOUT after 60 seconds of wall-clock time - load average: 26.84, 25.77, 24.83

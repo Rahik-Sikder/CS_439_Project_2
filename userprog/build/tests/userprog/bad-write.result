@@ -1,9 +1,0 @@
-FAIL
-Kernel panic in run: PANIC at ../../threads/interrupt.c:162 in register_handler(): assertion `intr_handlers[vec_no] == NULL' failed.
-Call stack: 0xc0028c7b 0xc0021799 0xc0021a10 0xc002c225 0xc00209aa
-Translation of call stack:
-0xc0028c7b: debug_panic (.../../lib/kernel/debug.c:37)
-0xc0021799: register_handler (..../threads/interrupt.c:164)
-0xc0021a10: intr_register_int (..../threads/interrupt.c:199)
-0xc002c225: syscall_init (.../../userprog/syscall.c:14)
-0xc00209aa: main (.../../../threads/init.c:116)
