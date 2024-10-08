@@ -24,6 +24,14 @@ void syscall_handler (struct intr_frame *f) {
     }
 
     switch (syscall_number) {
+        case SYS_EXEC:
+            printf("printing f->esp\n");
+            printf("%s\n",f->esp);
+            printf("printing f->esp + 4\n");
+            printf("%s\n",(char *)((char *)f->esp + 4));
+            printf("exec hex dump\n");
+            hex_dump(f->esp, f->esp, 128, 1);
+            break;
         case SYS_HALT:
             shutdown_power_off();
             break;
@@ -31,9 +39,7 @@ void syscall_handler (struct intr_frame *f) {
             int status = *(int *)(((char*)f->esp) + 4); 
             struct thread *cur = thread_current();  // Get current thread/process
             cur->exit_status = status;              // Set exit status
-
             thread_exit();
-
             break;
     }
 }

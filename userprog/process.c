@@ -434,7 +434,6 @@ static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
 static bool setup_stack (void **esp, char *filename, char* args)
 {
 
-
   uint8_t *kpage;
   bool success = false;
 
@@ -493,7 +492,10 @@ static bool setup_stack (void **esp, char *filename, char* args)
   // printf("done with setup :)stack\n");
 
   hex_dump((uintptr_t) sp, sp, (uintptr_t) PHYS_BASE - (uintptr_t) sp, true);
-  
+
+  // Probably want to compute this ahead of time and do at start of 
+  ASSERT (sp <= PHYS_BASE -  PGSIZE);
+
   *esp = sp;
   return success;
 }
