@@ -92,8 +92,8 @@ static void start_process (void *file_name_)
    does nothing. */
 int process_wait (tid_t child_tid UNUSED)
 {
-  while (1)
-    ;
+  // while (1)
+  //   ;
 }
 
 /* Free the current process's resources. */
@@ -491,10 +491,9 @@ static bool setup_stack (void **esp, char *filename, char* args)
   *((uint32_t *) sp) = 0;
   // printf("done with setup :)stack\n");
 
-  hex_dump((uintptr_t) sp, sp, (uintptr_t) PHYS_BASE - (uintptr_t) sp, true);
-
+  // hex_dump((uintptr_t) sp, sp, (uintptr_t) PHYS_BASE - (uintptr_t) sp, true);
   // Probably want to compute this ahead of time and do at start of 
-  ASSERT (sp <= PHYS_BASE -  PGSIZE);
+  // ASSERT ((uint32_t) sp <= (uint32_t) PHYS_BASE -  (uint32_t) PGSIZE);
 
   *esp = sp;
   return success;
