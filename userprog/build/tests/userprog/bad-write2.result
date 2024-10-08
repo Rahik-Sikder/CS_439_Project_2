@@ -1,0 +1,14 @@
+FAIL
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (bad-write2) begin
+  bad-write2: exit(-1)
+Differences in `diff -u' format:
+- (bad-write2) begin
+- bad-write2: exit(-1)
++ start process execute
++ filename passed to load: bad-write2
++ end process execute
+
+(User fault messages are excluded for matching purposes.)

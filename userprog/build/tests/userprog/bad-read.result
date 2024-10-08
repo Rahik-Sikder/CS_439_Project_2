@@ -1,0 +1,14 @@
+FAIL
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (bad-read) begin
+  bad-read: exit(-1)
+Differences in `diff -u' format:
+- (bad-read) begin
+- bad-read: exit(-1)
++ start process execute
++ filename passed to load: bad-read
++ end process execute
+
+(User fault messages are excluded for matching purposes.)

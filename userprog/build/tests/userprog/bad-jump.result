@@ -1,0 +1,14 @@
+FAIL
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (bad-jump) begin
+  bad-jump: exit(-1)
+Differences in `diff -u' format:
+- (bad-jump) begin
+- bad-jump: exit(-1)
++ start process execute
++ filename passed to load: bad-jump
++ end process execute
+
+(User fault messages are excluded for matching purposes.)

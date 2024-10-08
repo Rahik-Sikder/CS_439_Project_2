@@ -50,6 +50,15 @@ void syscall_handler (struct intr_frame *f)
       case SYS_WAIT: /* Wait for a child process to die. */
         break;
       case SYS_CREATE: /* Create a file. */
+        const char *file =  *(char *)((char*)f->esp + 4);  
+        unsigned initial_size = *(unsigned *)((char*)f->esp + 8); 
+
+        if (file == NULL || !is_user_vaddr(file) || strlen(file) == 0) {
+            f->eax = false;  
+        } else {
+            int status = filesys_create(file, initial_size);
+            f->eax = status; 
+        }
         break;
       case SYS_REMOVE: /* Delete a file. */
         break;

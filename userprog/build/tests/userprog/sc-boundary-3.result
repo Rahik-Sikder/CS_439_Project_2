@@ -1,0 +1,12 @@
+FAIL
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (sc-boundary-3) begin
+  sc-boundary-3: exit(-1)
+Differences in `diff -u' format:
+- (sc-boundary-3) begin
+- sc-boundary-3: exit(-1)
++ start process execute
++ filename passed to load: sc-boundary-3
++ end process execute

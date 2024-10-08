@@ -1,0 +1,12 @@
+FAIL
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (exec-bound-2) begin
+  exec-bound-2: exit(-1)
+Differences in `diff -u' format:
+- (exec-bound-2) begin
+- exec-bound-2: exit(-1)
++ start process execute
++ filename passed to load: exec-bound-2
++ end process execute
