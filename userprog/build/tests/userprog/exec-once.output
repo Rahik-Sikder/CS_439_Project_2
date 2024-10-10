@@ -1,6 +1,6 @@
 Copying tests/userprog/exec-once to scratch partition...
 Copying tests/userprog/child-simple to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/3HMQwXcvx9.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/gQ7T0bjepK.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -10,7 +10,7 @@ Kernel command line: -q -f extract run exec-once
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  654,540,800 loops/s.
+Calibrating timer...  366,592,000 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 180 sectors (90 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -30,15 +30,15 @@ There is no crying in Pintos!
 Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc00280aa
  cr2=fffffff9 error=00000000
  eax=fffffff9 ebx=c0109000 ecx=c010a050 edx=fffffff9
- esi=fffffff9 edi=00001000 esp=c010af04 ebp=c010aeb4
+ esi=fffffff9 edi=00001000 esp=c010af14 ebp=c010aec4
  cs=0008 ds=0010 es=0010 ss=8177
 Kernel PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d4b 0xc002bf01 0xc002bfaf 0xc0021bde 0xc0021e10 0xc00280aa 0xc0028177 0xc002b251 0xc002c30f 0xc0021bde 0xc0021e10 0x8049fd2 0x80480b2 0x80480ee 0x804868f.
+Call stack: 0xc0028d4b 0xc002bf01 0xc002bfaf 0xc0021bde 0xc0021e10 0xc00280aa 0xc0028177 0xc002b251 0xc002c335 0xc0021bde 0xc0021e10 0x8049fd2 0x80480b2 0x80480ee 0x804868f.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 65 ticks
-Thread: 31 idle ticks, 33 kernel ticks, 1 user ticks
+Timer: 61 ticks
+Thread: 30 idle ticks, 30 kernel ticks, 1 user ticks
 hda2 (filesys): 84 reads, 578 writes
 hda3 (scratch): 285 reads, 2 writes
 Console: 1627 characters output

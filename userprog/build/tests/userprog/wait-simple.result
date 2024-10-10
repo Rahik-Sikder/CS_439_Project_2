@@ -1,6 +1,6 @@
 FAIL
 Kernel panic in run: PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d4b 0xc002bf01 0xc002bfaf 0xc0021bde 0xc0021e10 0xc00280aa 0xc0028177 0xc002b251 0xc002c30f 0xc0021bde 0xc0021e10 0x8049fe2 0x80480b2 0x80480fe 0x804869f
+Call stack: 0xc0028d4b 0xc002bf01 0xc002bfaf 0xc0021bde 0xc0021e10 0xc00280aa 0xc0028177 0xc002b251 0xc002c335 0xc0021bde 0xc0021e10 0x8049fe2 0x80480b2 0x80480fe 0x804869f
 Translation of call stack:
 In kernel.o:
 0xc0028d4b: debug_panic (.../../lib/kernel/debug.c:37)
@@ -11,7 +11,7 @@ In kernel.o:
 0xc00280aa: strlen (...ld/../../lib/string.c:285)
 0xc0028177: strlcpy (...ld/../../lib/string.c:318)
 0xc002b251: process_execute (.../../userprog/process.c:44)
-0xc002c30f: syscall_handler (.../../userprog/syscall.c:50)
+0xc002c335: syscall_handler (.../../userprog/syscall.c:57)
 0xc0021bde: intr_handler (..../threads/interrupt.c:358)
 0xc0021e10: intr_entry (threads/intr-stubs.o:?)
 In tests/userprog/wait-simple:

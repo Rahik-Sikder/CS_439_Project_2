@@ -3,13 +3,13 @@ pass tests/userprog/args-single
 pass tests/userprog/args-multiple
 pass tests/userprog/args-many
 pass tests/userprog/args-dbl-space
-FAIL tests/userprog/sc-bad-sp
+pass tests/userprog/sc-bad-sp
 FAIL tests/userprog/sc-bad-arg
-FAIL tests/userprog/sc-boundary
-FAIL tests/userprog/sc-boundary-2
+pass tests/userprog/sc-boundary
+pass tests/userprog/sc-boundary-2
 FAIL tests/userprog/sc-boundary-3
 pass tests/userprog/halt
-FAIL tests/userprog/exit
+pass tests/userprog/exit
 FAIL tests/userprog/create-normal
 FAIL tests/userprog/create-empty
 FAIL tests/userprog/create-null

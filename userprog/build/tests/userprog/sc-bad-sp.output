@@ -1,5 +1,5 @@
 Copying tests/userprog/sc-bad-sp to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/ci4F58KfF8.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/oufbfjzCQ1.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -9,7 +9,7 @@ Kernel command line: -q -f extract run sc-bad-sp
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  657,817,600 loops/s.
+Calibrating timer...  322,355,200 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 180 sectors (90 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -23,23 +23,13 @@ Putting 'sc-bad-sp' into the file system...
 Erasing ustar archive...
 Executing 'sc-bad-sp':
 (sc-bad-sp) begin
-Page fault at 0x40480a6: not present error reading page in kernel context.
-There is no crying in Pintos!
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc002c2a9
- cr2=040480a6 error=00000000
- eax=c002c294 ebx=040480a6 ecx=0000000e edx=00000027
- esi=c010afb0 edi=c010afb0 esp=0804b980 ebp=c010af64
- cs=0008 ds=0010 es=0010 ss=0012
-Kernel PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d4b 0xc002bf01 0xc002bfaf 0xc0021bde 0xc0021e10 0xc002c2a9 0xc0021bde 0xc0021e10 0x80480ad 0x80480e9 0x804868a.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 63 ticks
-Thread: 31 idle ticks, 31 kernel ticks, 1 user ticks
+sc-bad-sp: exit(-1)
+Execution of 'sc-bad-sp' complete.
+Timer: 62 ticks
+Thread: 30 idle ticks, 32 kernel ticks, 0 user ticks
 hda2 (filesys): 59 reads, 292 writes
 hda3 (scratch): 143 reads, 2 writes
-Console: 1535 characters output
+Console: 871 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

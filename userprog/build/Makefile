@@ -105,10 +105,6 @@ clean::
 	rm -f bochsout.txt bochsrc.txt
 	rm -f results grade
 
-rm-disk::
-	rm -f filesys.dsk filesys.dsk.lock
-	pintos-mkdisk filesys.dsk --filesys-size=2
-
 Makefile: $(SRCDIR)/Makefile.build
 	cp $< $@
 
