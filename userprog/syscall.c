@@ -8,6 +8,7 @@
 #include "userprog/process.h"
 
 static void syscall_handler (struct intr_frame *);
+
 bool validate_user_address (const void *addr);
 
 void syscall_init (void)
@@ -19,16 +20,22 @@ void syscall_handler (struct intr_frame *f)
 {
 
   // Get the system call number from the stack
+
   int *sp = (int *) f->esp;
-  int syscall_number = *sp;
+  int syscall_number;
+  if(!validate_user_address (sp)){
+        int status = -1;
+        struct thread *cur = thread_current (); // Get current thread/process
+        cur->exit_status = status;              // Set exit status
+        printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
+        thread_exit ();
+        return;
+  } else {
+    syscall_number = *sp;
+    sp++;
+  }
+
   char *file;
-  sp++;
-
-  if (!validate_user_address (f->esp))
-    {
-      return;
-    }
-
   switch (syscall_number)
     {
       case SYS_HALT:
@@ -36,9 +43,10 @@ void syscall_handler (struct intr_frame *f)
         break;
       case SYS_EXIT:
         int status = *sp;
+        // printf("Value of sp: %d", status);
         struct thread *cur = thread_current (); // Get current thread/process
         cur->exit_status = status;              // Set exit status
-        printf ("%s: exit(%d)\n", cur->name, cur->status);
+        printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
         thread_exit ();
         break;
       case SYS_EXEC:
