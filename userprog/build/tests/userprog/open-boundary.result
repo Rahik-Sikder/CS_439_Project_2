@@ -1,0 +1,21 @@
+FAIL
+Kernel panic in run: PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0xc0028d4b 0xc002bf01 0xc002bfaf 0xc0021bde 0xc0021e10 0xc002c390 0xc0021bde 0xc0021e10 0x804a0bd 0x80480c6 0x8048188 0x8048729
+Translation of call stack:
+In kernel.o:
+0xc0028d4b: debug_panic (.../../lib/kernel/debug.c:37)
+0xc002bf01: kill (..../userprog/exception.c:99)
+0xc002bfaf: exception_init (..../userprog/exception.c:30)
+0xc0021bde: intr_handler (..../threads/interrupt.c:358)
+0xc0021e10: intr_entry (threads/intr-stubs.o:?)
+0xc002c390: syscall_handler (.../../userprog/syscall.c:82)
+0xc0021bde: intr_handler (..../threads/interrupt.c:358)
+0xc0021e10: intr_entry (threads/intr-stubs.o:?)
+In tests/userprog/open-boundary:
+0x0804a0bd: open (.../../lib/user/syscall.c:78)
+0x080480c6: test_main (...erprog/open-boundary.c:11)
+0x08048188: main (...ild/../../tests/main.c:12)
+0x08048729: _start (.../../../lib/user/entry.c:6)
+Translations of user virtual addresses above are based on a guess at
+the binary to use.  If this guess is incorrect, then those
+translations will be misleading.

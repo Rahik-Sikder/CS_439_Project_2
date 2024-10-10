@@ -113,11 +113,11 @@ int process_wait (tid_t child_tid UNUSED)
     return -1;
 
   // wait on a child's semaphore
-  sema_down(&child_thread->sema_wait);
+  sema_down (&child_thread->sema_wait);
 
   // cure zombie
-  sema_up(&child_thread->sema_cure);
-  
+  sema_up (&child_thread->sema_cure);
+
   return child_thread->exit_status;
 }
 

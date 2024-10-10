@@ -28,6 +28,7 @@ void syscall_handler (struct intr_frame *f)
     {
       return;
     }
+
   switch (syscall_number)
     {
       case SYS_HALT:
@@ -37,12 +38,11 @@ void syscall_handler (struct intr_frame *f)
         int status = *sp;
         struct thread *cur = thread_current (); // Get current thread/process
         cur->exit_status = status;              // Set exit status
+        printf ("%s: exit(%d)\n", cur->name, cur->status);
         thread_exit ();
         break;
       case SYS_EXEC:
         char *cmd_line = *(char *) (sp++);
-        struct semaphore exec_sema;
-        sema_init (&exec_sema, 0);
         // Guide says there's a possible error here with this code apparently
         // returning b4 exec finishes loading the child -> don't really see
         // how it could given the current implementation but who knows
@@ -105,6 +105,7 @@ void syscall_handler (struct intr_frame *f)
         else
           {
             // idk yet, we do this later
+            printf ("file write, not yet implemented %d\n", syscall_number);
           }
         break;
       case SYS_SEEK: /* Change position in a file. */
@@ -114,7 +115,7 @@ void syscall_handler (struct intr_frame *f)
       case SYS_CLOSE:
         break;
       default:
-        // printf("system %d\n", syscall_number);
+        printf ("system %d\n", syscall_number);
     }
 }
 
