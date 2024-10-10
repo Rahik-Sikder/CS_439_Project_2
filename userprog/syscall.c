@@ -43,7 +43,7 @@ void syscall_handler (struct intr_frame *f)
         break;
       case SYS_EXIT:
         int status = *sp;
-        // printf("Value of sp: %d", status);
+        if(status < -1) status = -1;
         struct thread *cur = thread_current (); // Get current thread/process
         cur->exit_status = status;              // Set exit status
         printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
