@@ -1,6 +1,8 @@
 {
     "files.associations": {
-        "type_traits": "c"
+        "type_traits": "c",
+        "pagedir.h": "c",
+        "thread": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

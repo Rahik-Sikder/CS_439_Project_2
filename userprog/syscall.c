@@ -5,6 +5,7 @@
 #include "threads/thread.h"
 #include "userprog/pagedir.h"
 #include "threads/vaddr.h"
+#include "userprog/process.h"
 
 static void syscall_handler (struct intr_frame *);
 bool validate_user_address (const void *addr);
@@ -20,13 +21,13 @@ void syscall_handler (struct intr_frame *f)
   // Get the system call number from the stack
   int *sp = (int *) f->esp;
   int syscall_number = *sp;
+  char *file;
   sp++;
 
   if (!validate_user_address (f->esp))
     {
       return;
     }
-
   switch (syscall_number)
     {
       case SYS_HALT:
@@ -39,64 +40,72 @@ void syscall_handler (struct intr_frame *f)
         thread_exit ();
         break;
       case SYS_EXEC:
-        // printf("system exec\n");
-        // printf("printing f->esp\n");
-        // printf("%s\n",f->esp);
-        // printf("printing f->esp + 4\n");
-        // printf("%s\n",(char *)((char *)f->esp + 4));
-        // printf("exec hex dump\n");
-        // hex_dump(f->esp, f->esp, 128, 1);
+        char *cmd_line = *(char *) (sp++);
+        struct semaphore exec_sema;
+        sema_init (&exec_sema, 0);
+        // Guide says there's a possible error here with this code apparently
+        // returning b4 exec finishes loading the child -> don't really see
+        // how it could given the current implementation but who knows
+        tid_t result = process_execute (cmd_line);
+        return result;
         break;
       case SYS_WAIT: /* Wait for a child process to die. */
+        tid_t child = *(tid_t *) sp++;
+        return process_wait (child);
         break;
       case SYS_CREATE: /* Create a file. */
-        const char *file =  *(char *)((char*)f->esp + 4);  
-        unsigned initial_size = *(unsigned *)((char*)f->esp + 8); 
+        *file = (char *) *(sp++);
+        unsigned initial_size = *(unsigned *) (sp++);
 
-        if (file == NULL || !is_user_vaddr(file) || strlen(file) == 0) {
-            f->eax = false;  
-        } else {
-            int status = filesys_create(file, initial_size);
-            f->eax = status; 
-        }
+        if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
+          {
+            f->eax = false;
+          }
+        else
+          {
+            int status = filesys_create (file, initial_size);
+            f->eax = status;
+          }
         break;
       case SYS_REMOVE: /* Delete a file. */
-        const char *file =  *(char *)((char*)f->esp + 4);  
-        if (file == NULL || !is_user_vaddr(file) || strlen(file) == 0) {
+        *file = (char *) *(sp++);
+        if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
+          {
             f->eax = -1;
-        }
-        else{
-            f->eax = filesys_remove(file);
-        }
+          }
+        else
+          {
+            f->eax = filesys_remove (file);
+          }
         break;
       case SYS_OPEN: /* Open a file. */
-        const char *file =  *(char *)((char*)f->esp + 4);  
-        if (file == NULL || !is_user_vaddr(file) || strlen(file) == 0) {
+        *file = (char *) *(sp++);
+        if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
+          {
             f->eax = -1;
-        }
-        else{
-            f->eax = filesys_open(file);
-        }
-        
+          }
+        else
+          {
+            f->eax = filesys_open (file);
+          }
         break;
       case SYS_FILESIZE: /* Obtain a file's size. */
         break;
       case SYS_READ: /* Read from a file. */
         break;
       case SYS_WRITE: /* Write to a file. */
-        int fd = *sp;
-        sp++;
-        char *buffer = (char *) *sp;
-        sp++;
-        unsigned size = (unsigned) *sp;
+        int fd = *(sp++);
+        char *buffer = (char *) *(sp++);
+        unsigned size = (unsigned) *(sp++);
         if (fd == 1)
           {
             putbuf (buffer, size);
             return size; // this return is needed -> should investigate more
           }
-        else {
+        else
+          {
             // idk yet, we do this later
-        }
+          }
         break;
       case SYS_SEEK: /* Change position in a file. */
         break;

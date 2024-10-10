@@ -27,7 +27,7 @@ static bool load (const char *cmdline, void (**eip) (void), void **esp);
    thread id, or TID_ERROR if the thread cannot be created. */
 tid_t process_execute (const char *file_name)
 {
-  printf("start process execute\n");
+  // printf ("start process execute\n");
   char *fn_copy;
   tid_t tid;
   char *token;
@@ -47,7 +47,7 @@ tid_t process_execute (const char *file_name)
   tid = thread_create (token, PRI_DEFAULT, start_process, fn_copy);
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy);
-  printf("end process execute\n");
+  // printf ("end process execute\n");
   return tid;
 }
 
@@ -92,8 +92,33 @@ static void start_process (void *file_name_)
    does nothing. */
 int process_wait (tid_t child_tid UNUSED)
 {
-  // while (1)
-  //   ;
+  // look through thread's child list and look for tid
+  struct thread *cur_thread = thread_current ();
+  struct thread *child_thread = NULL;
+  struct list_elem *e;
+
+  for (e = list_begin (&cur_thread->children);
+       e != list_end (&cur_thread->children); e = list_next (e))
+    {
+      struct thread *f = list_entry (e, struct thread, childelem);
+      if (f->tid == child_tid)
+        {
+          child_thread = f;
+          break;
+        }
+    }
+
+  // child tid not found in listed children
+  if (!child_thread)
+    return -1;
+
+  // wait on a child's semaphore
+  sema_down(&child_thread->sema_wait);
+
+  // cure zombie
+  sema_up(&child_thread->sema_cure);
+  
+  return child_thread->exit_status;
 }
 
 /* Free the current process's resources. */
@@ -198,7 +223,7 @@ struct Elf32_Phdr
 #define PF_W 2 /* Writable. */
 #define PF_R 4 /* Readable. */
 
-static bool setup_stack (void **esp, char *filename, char* args);
+static bool setup_stack (void **esp, char *filename, char *args);
 static bool validate_segment (const struct Elf32_Phdr *, struct file *);
 static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
                           uint32_t read_bytes, uint32_t zero_bytes,
@@ -218,7 +243,7 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
   int i;
   char *token;
   char *rest;
-  printf("filename passed to load: %s\n", file_name);
+  // printf ("filename passed to load: %s\n", file_name);
   token = strtok_r (file_name, " ", &rest);
   // printf("filename after split: %s\n", file_name);
   // printf("token after split: %s\n", token);
@@ -431,7 +456,7 @@ static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
 
 /* Create a minimal stack by mapping a zeroed page at the top of
    user virtual memory. */
-static bool setup_stack (void **esp, char *filename, char* args)
+static bool setup_stack (void **esp, char *filename, char *args)
 {
 
   uint8_t *kpage;
@@ -492,7 +517,7 @@ static bool setup_stack (void **esp, char *filename, char* args)
   // printf("done with setup :)stack\n");
 
   // hex_dump((uintptr_t) sp, sp, (uintptr_t) PHYS_BASE - (uintptr_t) sp, true);
-  // Probably want to compute this ahead of time and do at start of 
+  // Probably want to compute this ahead of time and do at start of
   // ASSERT ((uint32_t) sp <= (uint32_t) PHYS_BASE -  (uint32_t) PGSIZE);
 
   *esp = sp;

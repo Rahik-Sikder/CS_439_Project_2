@@ -18,7 +18,7 @@ enum thread_status
 /* Thread identifier type.
    You can redefine this to whatever type you like. */
 typedef int tid_t;
-#define TID_ERROR ((tid_t) -1) /* Error value for tid_t. */
+#define TID_ERROR ((tid_t) - 1) /* Error value for tid_t. */
 
 /* Thread priorities. */
 #define PRI_MIN 0      /* Lowest priority. */
@@ -93,12 +93,20 @@ struct thread
   int priority;              /* Priority. */
   struct list_elem allelem;  /* List element for all threads list. */
 
-  int64_t target_ticks; /* Tick at which thread wakes up */
+  /* Used for Project 1*/
+  int64_t target_ticks;        /* Tick at which thread wakes up */
   struct list_elem sleepelem;  /* List element for sleeping threads list. */
   struct semaphore sema_sleep; /* Semaphore that blocks and wakes sleeping */
   struct thread *road_block;
   struct list lock_waiters;
+
+  /* Used for Project 2*/
   int exit_status;
+  struct list children;
+  struct list_elem childelem;
+  struct semaphore sema_wait;
+  struct semaphore sema_cure; /* parent cures child from being a zombie */
+
   /* Shared between thread.c and synch.c. */
   struct list_elem elem; /* List element. */
 
@@ -120,7 +128,7 @@ void thread_init (void);
 void thread_start (void);
 
 void thread_tick (void);
-void thread_print_stats (void); 
+void thread_print_stats (void);
 
 typedef void thread_func (void *aux);
 tid_t thread_create (const char *name, int priority, thread_func *, void *);
@@ -147,9 +155,9 @@ void thread_set_nice (int);
 int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
 
-//Jake started driving
+// Jake started driving
 bool thread_compare_priority (struct list_elem *a, struct list_elem *b,
                               void *aux);
-//Jake finished driving
+// Jake finished driving
 
 #endif /* threads/thread.h */
