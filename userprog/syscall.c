@@ -42,6 +42,10 @@ void syscall_handler (struct intr_frame *f)
   char *file;
   struct thread *cur = thread_current();
   int fd;
+  struct file* found_file;
+  unsigned size;
+  char *buffer;
+
   switch (syscall_number)
     {
       case SYS_HALT:
@@ -115,7 +119,7 @@ void syscall_handler (struct intr_frame *f)
         break;
       case SYS_FILESIZE: /* Obtain a file's size. */
         fd = *(int *)((char*)f->esp + 4);
-        struct file* found_file = get_file_from_fd(fd);
+        found_file = get_file_from_fd(fd);
 
         if(found_file==NULL){
           f->eax = -1;
@@ -123,11 +127,38 @@ void syscall_handler (struct intr_frame *f)
         f->eax = file_length(file); 
         break;
       case SYS_READ: /* Read from a file. */
+        int fd = *(int *) ((char *) f->esp + 4);
+        buffer = *(char **) ((char *) f->esp + 8);
+        size = *(unsigned *) ((char *) f->esp + 12);
+
+        if (!validate_user_address(buffer)) {
+            f->eax = -1; 
+            return;
+        }
+
+        if (fd == 0) { 
+            for (unsigned i = 0; i < size; i++) {
+                buffer[i] = input_getc();  
+            }
+            f->eax = size;  
+        } else {
+            found_file = get_file_from_fd(fd);  
+            if (file == NULL) {
+                f->eax = -1;  
+                return;
+            }
+
+            f->eax = file_read(file, buffer, size);   
+        }
         break;
       case SYS_WRITE: /* Write to a file. */
         fd =  *(sp++);
-        char *buffer = (char *) *(sp++);
-        unsigned size = (unsigned) *(sp++);
+        buffer = (char *) *(sp++);
+        size = (unsigned) *(sp++);
+        if (!validate_user_address(buffer)) {
+            f->eax = -1;  
+            return;
+        }
         if (fd == 1)
           {
             putbuf (buffer, size);
@@ -135,15 +166,46 @@ void syscall_handler (struct intr_frame *f)
           }
         else
           {
-            // idk yet, we do this later
-            printf ("file write, not yet implemented %d\n", syscall_number);
+            struct file *file = get_file_from_fd(fd);  // Retrieve the file using fd
+
+            if (file == NULL) {
+                f->eax = -1;  // Return error if file not found
+                return;
+            }
+
+            int bytes_written = file_write(file, buffer, size);
+
+            f->eax = bytes_written;
           }
         break;
       case SYS_SEEK: /* Change position in a file. */
-        break;
-      case SYS_TELL: /* Report current position in a file. */
+        fd = *(int *)((char*)f->esp + 4);
+        unsigned position = *(unsigned *) ((char *) f->esp + 8);
+
+        found_file = get_file_from_fd(fd);
+
+        if (file == NULL) {
+            f->eax = -1;
+        }
+        else{
+          file_seek(file, position);
+          f->eax = 0; 
+        }
+
+        break;      
+    case SYS_TELL: /* Report current position in a file. */
+        fd = *(int *)((char*)f->esp + 4);
+        found_file = get_file_from_fd(fd);
+        if (file == NULL) {
+            f->eax = -1;
+        }
+        else{
+          f->eax = file_tell(file);
+        }
+        
         break;
       case SYS_CLOSE:
+        fd = *(int *)((char*)f->esp + 4);
         struct list_elem *e;
 
         for (e = list_begin(&cur->file_descriptors); e != list_end(&cur->file_descriptors); e = list_next(e)) {

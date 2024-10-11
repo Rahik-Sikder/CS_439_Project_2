@@ -1,0 +1,45 @@
+Copying tests/userprog/exec-missing to scratch partition...
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/nt1H0GzA32.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
+Booting from Hard Disk...
+PPiiLLoo  hhddaa1
+1
+LLooaaddiinngg.....................
+Kernel command line: -q -f extract run exec-missing
+Pintos booting with 3,968 kB RAM...
+367 pages available in kernel pool.
+367 pages available in user pool.
+Calibrating timer...  62,668,800 loops/s.
+hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
+hda1: 188 sectors (94 kB), Pintos OS kernel (20)
+hda2: 4,096 sectors (2 MB), Pintos file system (21)
+hda3: 145 sectors (72 kB), Pintos scratch (22)
+filesys: using hda2
+scratch: using hda3
+Formatting file system...done.
+Boot complete.
+Extracting ustar archive from scratch device into file system...
+Putting 'exec-missing' into the file system...
+Erasing ustar archive...
+Executing 'exec-missing':
+(exec-missing) begin
+Page fault at 0xfffffff9: not present error reading page in kernel context.
+There is no crying in Pintos!
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc00280ca
+ cr2=fffffff9 error=00000000
+ eax=fffffff9 ebx=c0109000 ecx=c010a050 edx=fffffff9
+ esi=fffffff9 edi=00001000 esp=c010aef4 ebp=c010aea4
+ cs=0008 ds=0010 es=0010 ss=8197
+Kernel PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc00280ca 0xc0028197 0xc002b271 0xc002c3d8 0xc0021bfe 0xc0021e30 0x8049fd2 0x80480b2 0x80480f6 0x8048697.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 70 ticks
+Thread: 34 idle ticks, 34 kernel ticks, 2 user ticks
+hda2 (filesys): 59 reads, 294 writes
+hda3 (scratch): 144 reads, 2 writes
+Console: 1590 characters output
+Keyboard: 0 keys pressed
+Exception: 1 page faults
+Powering off...

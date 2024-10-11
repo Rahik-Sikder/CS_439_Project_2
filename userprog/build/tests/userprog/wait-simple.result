@@ -1,0 +1,24 @@
+FAIL
+Kernel panic in run: PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc00280ca 0xc0028197 0xc002b271 0xc002c3d8 0xc0021bfe 0xc0021e30 0x8049fe2 0x80480b2 0x80480fe 0x804869f
+Translation of call stack:
+In kernel.o:
+0xc0028d6b: debug_panic (.../../lib/kernel/debug.c:37)
+0xc002bf21: kill (..../userprog/exception.c:99)
+0xc002bfcf: exception_init (..../userprog/exception.c:30)
+0xc0021bfe: intr_handler (..../threads/interrupt.c:358)
+0xc0021e30: intr_entry (threads/intr-stubs.o:?)
+0xc00280ca: strlen (...ld/../../lib/string.c:285)
+0xc0028197: strlcpy (...ld/../../lib/string.c:318)
+0xc002b271: process_execute (.../../userprog/process.c:44)
+0xc002c3d8: syscall_handler (.../../userprog/syscall.c:67)
+0xc0021bfe: intr_handler (..../threads/interrupt.c:358)
+0xc0021e30: intr_entry (threads/intr-stubs.o:?)
+In tests/userprog/wait-simple:
+0x08049fe2: exec (.../../lib/user/syscall.c:67)
+0x080480b2: test_main (.../userprog/wait-simple.c:9)
+0x080480fe: main (...ild/../../tests/main.c:12)
+0x0804869f: _start (.../../../lib/user/entry.c:6)
+Translations of user virtual addresses above are based on a guess at
+the binary to use.  If this guess is incorrect, then those
+translations will be misleading.
