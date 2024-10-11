@@ -13,6 +13,7 @@ static void syscall_handler (struct intr_frame *);
 bool validate_user_address (const void *addr);
 
 static struct file* get_file_from_fd(int fd);
+bool get_user_32bit(const void *src);
 
 void syscall_init (void)
 {
@@ -26,7 +27,7 @@ void syscall_handler (struct intr_frame *f)
 
   int *sp = (int *) f->esp;
   int syscall_number;
-  if(!validate_user_address (sp)){
+  if(!get_user_32bit(sp)){
         int status = -1;
         struct thread *cur = thread_current (); // Get current thread/process
         cur->exit_status = status;              // Set exit status
@@ -185,4 +186,12 @@ static struct file* get_file_from_fd(int fd) {
     }
 
     return NULL;  
+}
+bool get_user_32bit(const void *src) {
+    /* Check that all 4 bytes of the source address are in valid user memory */
+    for (int i = 0; i < sizeof(uint32_t); i++) {
+        if (!validate_user_address((uint8_t*)src + 1)) {
+            return false;
+        }
+    }
 }
