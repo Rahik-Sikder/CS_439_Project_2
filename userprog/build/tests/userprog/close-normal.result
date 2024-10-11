@@ -1,16 +1,16 @@
 FAIL
 Kernel panic in run: PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d4b 0xc002bf01 0xc002bfaf 0xc0021bde 0xc0021e10 0xc002c3c3 0xc0021bde 0xc0021e10 0x804a04d 0x80480c1 0x804811f 0x80486c0
+Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc002c43d 0xc0021bfe 0xc0021e30 0x804a04d 0x80480c1 0x804811f 0x80486c0
 Translation of call stack:
 In kernel.o:
-0xc0028d4b: debug_panic (.../../lib/kernel/debug.c:37)
-0xc002bf01: kill (..../userprog/exception.c:99)
-0xc002bfaf: exception_init (..../userprog/exception.c:30)
-0xc0021bde: intr_handler (..../threads/interrupt.c:358)
-0xc0021e10: intr_entry (threads/intr-stubs.o:?)
-0xc002c3c3: syscall_handler (.../../userprog/syscall.c:90)
-0xc0021bde: intr_handler (..../threads/interrupt.c:358)
-0xc0021e10: intr_entry (threads/intr-stubs.o:?)
+0xc0028d6b: debug_panic (.../../lib/kernel/debug.c:37)
+0xc002bf21: kill (..../userprog/exception.c:99)
+0xc002bfcf: exception_init (..../userprog/exception.c:30)
+0xc0021bfe: intr_handler (..../threads/interrupt.c:358)
+0xc0021e30: intr_entry (threads/intr-stubs.o:?)
+0xc002c43d: syscall_handler (.../../userprog/syscall.c:94)
+0xc0021bfe: intr_handler (..../threads/interrupt.c:358)
+0xc0021e30: intr_entry (threads/intr-stubs.o:?)
 In tests/userprog/close-normal:
 0x0804a04d: open (.../../lib/user/syscall.c:78)
 0x080480c1: test_main (...serprog/close-normal.c:10)

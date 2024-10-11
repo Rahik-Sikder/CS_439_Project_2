@@ -1,6 +1,6 @@
 Copying tests/userprog/read-zero to scratch partition...
 Copying ../../tests/userprog/sample.txt to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/r5DlbCG4hW.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/pD1uHlcXtr.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -10,7 +10,7 @@ Kernel command line: -q -f extract run read-zero
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  209,510,400 loops/s.
+Calibrating timer...  56,217,600 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 180 sectors (90 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -28,21 +28,21 @@ Executing 'read-zero':
 (read-zero) open "sample.txt"
 Page fault at 0: not present error writing page in kernel context.
 There is no crying in Pintos!
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc002c3c3
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc002c43d
  cr2=00000000 error=00000002
  eax=00000000 ebx=bfffff60 ecx=00000000 edx=0804a55b
- esi=c010afb0 edi=00000010 esp=bfffff60 ebp=c010af64
+ esi=00000006 edi=c010afb0 esp=bfffff60 ebp=c010af64
  cs=0008 ds=0010 es=0010 ss=001e
 Kernel PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d4b 0xc002bf01 0xc002bfaf 0xc0021bde 0xc0021e10 0xc002c3c3 0xc0021bde 0xc0021e10 0x804a06d 0x80480be 0x8048144 0x80486e5.
+Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc002c43d 0xc0021bfe 0xc0021e30 0x804a06d 0x80480be 0x8048144 0x80486e5.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 57 ticks
-Thread: 30 idle ticks, 25 kernel ticks, 2 user ticks
+Timer: 66 ticks
+Thread: 31 idle ticks, 34 kernel ticks, 1 user ticks
 hda2 (filesys): 84 reads, 302 writes
 hda3 (scratch): 147 reads, 2 writes
-Console: 1612 characters output
+Console: 1611 characters output
 Keyboard: 0 keys pressed
 Exception: 1 page faults
 Powering off...
