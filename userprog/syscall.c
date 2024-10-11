@@ -6,11 +6,13 @@
 #include "userprog/pagedir.h"
 #include "threads/vaddr.h"
 #include "userprog/process.h"
+#include "filesys/file.h"
 
 static void syscall_handler (struct intr_frame *);
 
 bool validate_user_address (const void *addr);
 
+static struct file* get_file_from_fd(int fd);
 bool get_user_32bit(const void *src);
 
 void syscall_init (void)
@@ -38,15 +40,16 @@ void syscall_handler (struct intr_frame *f)
   }
 
   char *file;
+  struct thread *cur = thread_current();
+  int fd;
   switch (syscall_number)
     {
       case SYS_HALT:
         shutdown_power_off ();
         break;
       case SYS_EXIT:
-        int status = *sp;
+        int status = *(sp++);
         if(status < -1) status = -1;
-        struct thread *cur = thread_current (); // Get current thread/process
         cur->exit_status = status;              // Set exit status
         printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
         thread_exit ();
@@ -96,15 +99,33 @@ void syscall_handler (struct intr_frame *f)
           }
         else
           {
-            f->eax = filesys_open (file);
+            struct file *opened_file = filesys_open (file);
+            struct file_descriptor *fd_entry = malloc(sizeof(struct file_descriptor));
+            if(fd_entry == NULL){
+              file_close(opened_file);
+              f->eax = -1;
+            }
+            fd_entry->fd = cur->curr_fd;
+            cur->curr_fd++;
+            fd_entry->open_file = opened_file;
+            list_push_back(&cur->file_descriptors, &fd_entry->file_elem);
+            f->eax = fd_entry->fd;
+            
           }
         break;
       case SYS_FILESIZE: /* Obtain a file's size. */
+        fd = *(int *)((char*)f->esp + 4);
+        struct file* found_file = get_file_from_fd(fd);
+
+        if(found_file==NULL){
+          f->eax = -1;
+        }
+        f->eax = file_length(file); 
         break;
       case SYS_READ: /* Read from a file. */
         break;
       case SYS_WRITE: /* Write to a file. */
-        int fd = *(sp++);
+        fd =  *(sp++);
         char *buffer = (char *) *(sp++);
         unsigned size = (unsigned) *(sp++);
         if (fd == 1)
@@ -123,6 +144,18 @@ void syscall_handler (struct intr_frame *f)
       case SYS_TELL: /* Report current position in a file. */
         break;
       case SYS_CLOSE:
+        struct list_elem *e;
+
+        for (e = list_begin(&cur->file_descriptors); e != list_end(&cur->file_descriptors); e = list_next(e)) {
+            struct file_descriptor *fd_entry = list_entry(e, struct file_descriptor, file_elem);
+
+            if (fd_entry->fd == fd) {
+                file_close(fd_entry->open_file);  // Close the file
+                list_remove(e);                  // Remove the entry from the fd_table
+                free(fd_entry);                  // Free the memory for the file descriptor
+                return;
+            }
+        }
         break;
       default:
         printf ("system %d\n", syscall_number);
@@ -140,6 +173,20 @@ bool validate_user_address (const void *addr)
 }
 
 
+static struct file* get_file_from_fd(int fd) {
+    struct thread *cur = thread_current();  // Get current thread (process)
+    struct list_elem *e;
+
+    for (e = list_begin(&cur->file_descriptors); e != list_end(&cur->file_descriptors); e = list_next(e)) {
+        struct file_descriptor *fd_entry = list_entry(e, struct file_descriptor, file_elem);
+
+        if (fd_entry->fd == fd) {
+            return fd_entry->open_file;  
+        }
+    }
+
+    return NULL;  
+}
 bool get_user_32bit(const void *src) {
     /* Check that all 4 bytes of the source address are in valid user memory */
     for (int i = 0; i < sizeof(uint32_t); i++) {

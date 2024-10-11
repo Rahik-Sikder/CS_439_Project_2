@@ -4,7 +4,8 @@
         "pagedir.h": "c",
         "thread": "c",
         "typeindex": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "off_t.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
