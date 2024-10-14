@@ -1,21 +1,14 @@
 FAIL
-Kernel panic in run: PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc002c407 0xc0021bfe 0xc0021e30 0x804a035 0x80480e6 0x8048130 0x80486d1
-Translation of call stack:
-In kernel.o:
-0xc0028d6b: debug_panic (.../../lib/kernel/debug.c:37)
-0xc002bf21: kill (..../userprog/exception.c:99)
-0xc002bfcf: exception_init (..../userprog/exception.c:30)
-0xc0021bfe: intr_handler (..../threads/interrupt.c:358)
-0xc0021e30: intr_entry (threads/intr-stubs.o:?)
-0xc002c407: syscall_handler (.../../userprog/syscall.c:75)
-0xc0021bfe: intr_handler (..../threads/interrupt.c:358)
-0xc0021e30: intr_entry (threads/intr-stubs.o:?)
-In tests/userprog/create-long:
-0x0804a035: create (.../../lib/user/syscall.c:73)
-0x080480e6: test_main (...userprog/create-long.c:15)
-0x08048130: main (...ild/../../tests/main.c:12)
-0x080486d1: _start (.../../../lib/user/entry.c:6)
-Translations of user virtual addresses above are based on a guess at
-the binary to use.  If this guess is incorrect, then those
-translations will be misleading.
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (create-long) begin
+  (create-long) create("x..."): 0
+  (create-long) end
+  create-long: exit(0)
+Differences in `diff -u' format:
+  (create-long) begin
+- (create-long) create("x..."): 0
++ (create-long) create("x..."): 1
+  (create-long) end
+  create-long: exit(0)

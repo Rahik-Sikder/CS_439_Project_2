@@ -59,7 +59,7 @@ void syscall_handler (struct intr_frame *f)
         thread_exit ();
         break;
       case SYS_EXEC:
-        char *cmd_line = *((char **) (sp++));
+        char *cmd_line = (char *) (sp++);
         // Guide says there's a possible error here with this code apparently
         // returning b4 exec finishes loading the child -> don't really see
         // how it could given the current implementation but who knows
@@ -72,7 +72,7 @@ void syscall_handler (struct intr_frame *f)
         return process_wait (child);
         break;
       case SYS_CREATE: /* Create a file. */
-        *file = *(char **)sp++;
+        file = (char *) (sp++);
         unsigned initial_size = *(unsigned *) (sp++);
 
         if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
@@ -86,7 +86,7 @@ void syscall_handler (struct intr_frame *f)
           }
         break;
       case SYS_REMOVE: /* Delete a file. */
-        *file = *(char **)sp++;
+        file = (char *) (sp++);
         if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
           {
             f->eax = -1;
@@ -97,7 +97,7 @@ void syscall_handler (struct intr_frame *f)
           }
         break;
       case SYS_OPEN: /* Open a file. */
-        *file = (char *) *(sp++);
+        file = (char *) (sp++);
         if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
           {
             f->eax = -1;
@@ -119,7 +119,7 @@ void syscall_handler (struct intr_frame *f)
           }
         break;
       case SYS_FILESIZE: /* Obtain a file's size. */
-        fd = *(int *)((char*)f->esp + 4);
+        fd = *(sp++);
         found_file = get_file_from_fd(fd);
 
         if(found_file==NULL){
@@ -128,9 +128,9 @@ void syscall_handler (struct intr_frame *f)
         f->eax = file_length(file); 
         break;
       case SYS_READ: /* Read from a file. */
-        int fd = *(int *) ((char *) f->esp + 4);
-        buffer = *(char **) ((char *) f->esp + 8);
-        size = *(unsigned *) ((char *) f->esp + 12);
+        fd = *(sp++);
+        buffer = (char *) *(sp++);
+        size = (unsigned) *(sp++);
 
         if (!validate_user_address(buffer) || !is_user_vaddr(buffer + size - 1)) {
             f->eax = -1; 
@@ -180,8 +180,8 @@ void syscall_handler (struct intr_frame *f)
           }
         break;
       case SYS_SEEK: /* Change position in a file. */
-        fd = *(int *)((char*)f->esp + 4);
-        unsigned position = *(unsigned *) ((char *) f->esp + 8);
+        fd = *(sp++);
+        unsigned position = (unsigned) *(sp++);
 
         found_file = get_file_from_fd(fd);
 
@@ -195,7 +195,7 @@ void syscall_handler (struct intr_frame *f)
 
         break;      
     case SYS_TELL: /* Report current position in a file. */
-        fd = *(int *)((char*)f->esp + 4);
+        fd = *(sp++);
         found_file = get_file_from_fd(fd);
         if (file == NULL) {
             f->eax = -1;
@@ -206,7 +206,7 @@ void syscall_handler (struct intr_frame *f)
         
         break;
       case SYS_CLOSE:
-        fd = *(int *)((char*)f->esp + 4);
+        fd = *(sp++);
         struct list_elem *e;
 
         for (e = list_begin(&cur->file_descriptors); e != list_end(&cur->file_descriptors); e = list_next(e)) {

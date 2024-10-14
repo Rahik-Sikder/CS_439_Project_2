@@ -1,6 +1,6 @@
 Copying tests/userprog/write-normal to scratch partition...
 Copying ../../tests/userprog/sample.txt to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/oxaUHjbhB_.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/B9XNPiaw4_.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -10,7 +10,7 @@ Kernel command line: -q -f extract run write-normal
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  58,982,400 loops/s.
+Calibrating timer...  57,958,400 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -26,23 +26,15 @@ Erasing ustar archive...
 Executing 'write-normal':
 (write-normal) begin
 (write-normal) create "test.txt"
-Page fault at 0: not present error writing page in kernel context.
-There is no crying in Pintos!
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc002c407
- cr2=00000000 error=00000002
- eax=00000000 ebx=bfffff6c ecx=0000008b edx=0804a58b
- esi=c010afb0 edi=00000004 esp=bfffff6c ebp=c010af64
- cs=0008 ds=0010 es=0010 ss=0021
-Kernel PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc002c407 0xc0021bfe 0xc0021e30 0x804a075 0x80480c6 0x804816a 0x804870b.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 66 ticks
-Thread: 32 idle ticks, 33 kernel ticks, 1 user ticks
-hda2 (filesys): 85 reads, 304 writes
+(write-normal) open "test.txt"
+(write-normal) write() returned -1 instead of 239: FAILED
+write-normal: exit(1)
+Execution of 'write-normal' complete.
+Timer: 70 ticks
+Thread: 31 idle ticks, 36 kernel ticks, 3 user ticks
+hda2 (filesys): 123 reads, 309 writes
 hda3 (scratch): 148 reads, 2 writes
-Console: 1626 characters output
+Console: 1055 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

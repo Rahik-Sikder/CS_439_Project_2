@@ -1,16 +1,17 @@
 Copying tests/userprog/wait-twice to scratch partition...
 Copying tests/userprog/child-simple to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/NVXZuefohR.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/30RKRfK3XE.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
 1
 LLooaaddiinngg.....................
+.
 Kernel command line: -q -f extract run wait-twice
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  29,900,800 loops/s.
+Calibrating timer...  32,716,800 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -25,9 +26,8 @@ Putting 'child-simple' into the file system...
 Erasing ustar archive...
 Executing 'wait-twice':
 (wait-twice) begin
-(child-simple) run
-child-simple: exit(81)
+load: )¥˜ÿÿ¿µ€)¥: open failed
 (wait-twice) wait(exec()) = 4
-sent kill to process 4157181, waiting for it to end
+sent kill to process 4165347, waiting for it to end
 
-TIMEOUT after 60 seconds of wall-clock time - load average: 1.69, 1.85, 1.71
+TIMEOUT after 60 seconds of wall-clock time - load average: 1.51, 1.76, 1.67

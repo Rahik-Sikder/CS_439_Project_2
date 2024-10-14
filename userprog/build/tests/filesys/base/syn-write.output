@@ -1,6 +1,6 @@
 Copying tests/filesys/base/syn-write to scratch partition...
 Copying tests/filesys/base/child-syn-wrt to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/_li_fSA9_y.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/6j8Y7ec3M3.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -10,7 +10,7 @@ Kernel command line: -q -f extract run syn-write
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  26,982,400 loops/s.
+Calibrating timer...  25,369,600 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -26,23 +26,26 @@ Erasing ustar archive...
 Executing 'syn-write':
 (syn-write) begin
 (syn-write) create "stuff"
-Page fault at 0: not present error writing page in kernel context.
-There is no crying in Pintos!
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc002c407
- cr2=00000000 error=00000002
- eax=00000000 ebx=bfffff2c ecx=0000004c edx=0804a54c
- esi=c010afb0 edi=00000004 esp=bfffff2c ebp=c010af64
- cs=0008 ds=0010 es=0010 ss=001b
-Kernel PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc002c407 0xc0021bfe 0xc0021e30 0x804a265 0x80480d1 0x80488d9 0x8048904.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 77 ticks
-Thread: 35 idle ticks, 40 kernel ticks, 2 user ticks
-hda2 (filesys): 87 reads, 636 writes
+(syn-write) exec child 1 of 10: "child-syn-wrt 0"
+(syn-write) exec child 2 of 10: "child-syn-wrt 1"
+(syn-write) exec child 3 of 10: "child-syn-wrt 2"
+(syn-write) exec child 4 of 10: "child-syn-wrt 3"
+(syn-write) exec child 5 of 10: "child-syn-wrt 4"
+(syn-write) exec child 6 of 10: "child-syn-wrt 5"
+(syn-write) exec child 7 of 10: "child-syn-wrt 6"
+(syn-write) exec child 8 of 10: "child-syn-wrt 7"
+(syn-write) exec child 9 of 10: "child-syn-wrt 8"
+(syn-write) exec child 10 of 10: "child-syn-wrt 9"
+load:  þÿ¿8ÿÿ¿§ƒ þÿ¿: open failed
+(syn-write) wait for child 1 of 10 returned 4 (expected 0)
+(syn-write) wait for child 1 of 10 returned 4 (expected 0): FAILED
+syn-write: exit(1)
+Execution of 'syn-write' complete.
+Timer: 72 ticks
+Thread: 32 idle ticks, 38 kernel ticks, 3 user ticks
+hda2 (filesys): 126 reads, 650 writes
 hda3 (scratch): 314 reads, 2 writes
-Console: 1612 characters output
+Console: 1610 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

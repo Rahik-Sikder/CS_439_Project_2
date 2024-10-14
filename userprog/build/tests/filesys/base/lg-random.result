@@ -1,21 +1,2 @@
 FAIL
-Kernel panic in run: PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc002c407 0xc0021bfe 0xc0021e30 0x804a355 0x8048108 0x80489c9 0x80489f4
-Translation of call stack:
-In kernel.o:
-0xc0028d6b: debug_panic (.../../lib/kernel/debug.c:37)
-0xc002bf21: kill (..../userprog/exception.c:99)
-0xc002bfcf: exception_init (..../userprog/exception.c:30)
-0xc0021bfe: intr_handler (..../threads/interrupt.c:358)
-0xc0021e30: intr_entry (threads/intr-stubs.o:?)
-0xc002c407: syscall_handler (.../../userprog/syscall.c:75)
-0xc0021bfe: intr_handler (..../threads/interrupt.c:358)
-0xc0021e30: intr_entry (threads/intr-stubs.o:?)
-In tests/filesys/base/lg-random:
-0x0804a355: create (.../../lib/user/syscall.c:73)
-0x08048108: test_main (...ilesys/base/random.inc:32)
-0x080489c9: main (...ild/../../tests/main.c:12)
-0x080489f4: _start (.../../../lib/user/entry.c:6)
-Translations of user virtual addresses above are based on a guess at
-the binary to use.  If this guess is incorrect, then those
-translations will be misleading.
+run: write 512 bytes at offset 49664 failed: FAILED

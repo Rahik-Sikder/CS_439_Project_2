@@ -1,15 +1,15 @@
 Copying tests/userprog/multi-recurse to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/F4CmhizD1p.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/YYb_PQnxuM.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
 1
-LLooaaddiinngg.....................
+LLooaaddiinngg......................
 Kernel command line: -q -f extract run 'multi-recurse 15'
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  56,627,200 loops/s.
+Calibrating timer...  56,012,800 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -24,58 +24,15 @@ Erasing ustar archive...
 Executing 'multi-recurse 15':
 (multi-recurse) begin 15
 (multi-recurse) exec("multi-recurse 14")
-(multi-recurse) begin 14
-(multi-recurse) exec("multi-recurse 13")
-(multi-recurse) begin 13
-(multi-recurse) exec("multi-recurse 12")
-(multi-recurse) begin 12
-(multi-recurse) exec("multi-recurse 11")
-(multi-recurse) begin 11
-(multi-recurse) exec("multi-recurse 10")
-(multi-recurse) begin 10
-(multi-recurse) exec("multi-recurse 9")
-(multi-recurse) begin 9
-(multi-recurse) exec("multi-recurse 8")
-(multi-recurse) begin 8
-(multi-recurse) exec("multi-recurse 7")
-(multi-recurse) begin 7
-(multi-recurse) exec("multi-recurse 6")
-(multi-recurse) begin 6
-(multi-recurse) exec("multi-recurse 5")
-(multi-recurse) begin 5
-(multi-recurse) exec("multi-recurse 4")
-(multi-recurse) begin 4
-(multi-recurse) exec("multi-recurse 3")
-(multi-recurse) begin 3
-(multi-recurse) exec("multi-recurse 2")
-(multi-recurse) begin 2
-(multi-recurse) exec("multi-recurse 1")
-(multi-recurse) begin 1
-(multi-recurse) exec("multi-recurse 0")
-(multi-recurse) begin 0
-(multi-recurse) end 0
-multi-recurse: exit(0)
-(multi-recurse) wait(exec("multi-recurse")) returned 18: FAILED
+load: ˇˇø∞ˇˇøÅ: open failed
+(multi-recurse) wait(exec("multi-recurse 14")) returned 4: FAILED
 multi-recurse: exit(1)
-(multi-recurse) wait(exec("multi-recurse")) returned 17: FAILED
-multi-recurse: exit(1)
-Page fault at 0xcccccccc: not present error reading page in kernel context.
-There is no crying in Pintos!
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc0028e7f
- cr2=cccccccc error=00000000
- eax=cccccccc ebx=cccccccc ecx=c0020a26 edx=c014609c
- esi=c014609c edi=c0020a26 esp=00000001 ebp=c0142e24
- cs=0008 ds=0010 es=0010 ss=2000
-Kernel PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc0028e7f 0xc0028fce 0xc002981e 0xc0022c18 0xc002134f 0xc002c3e0 0xc0021bfe 0xc0021e30 0x804a401 0x8048283 0x804816b 0x80486f9.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 75 ticks
-Thread: 33 idle ticks, 28 kernel ticks, 14 user ticks
-hda2 (filesys): 650 reads, 320 writes
+Execution of 'multi-recurse' complete.
+Timer: 69 ticks
+Thread: 30 idle ticks, 37 kernel ticks, 2 user ticks
+hda2 (filesys): 82 reads, 320 writes
 hda3 (scratch): 157 reads, 2 writes
-Console: 2818 characters output
+Console: 1042 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

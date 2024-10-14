@@ -1,5 +1,5 @@
 Copying tests/filesys/base/sm-full to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/U93PoLuoSJ.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/1K2U0_8UDN.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -9,7 +9,7 @@ Kernel command line: -q -f extract run sm-full
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  57,344,000 loops/s.
+Calibrating timer...  52,736,000 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -24,23 +24,16 @@ Erasing ustar archive...
 Executing 'sm-full':
 (sm-full) begin
 (sm-full) create "quux"
-Page fault at 0: not present error writing page in kernel context.
-There is no crying in Pintos!
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc002c407
- cr2=00000000 error=00000002
- eax=00000000 ebx=bfffff3c ecx=00000069 edx=0804a669
- esi=c010afb0 edi=00000004 esp=bfffff3c ebp=c010af64
- cs=0008 ds=0010 es=0010 ss=0018
-Kernel PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc002c407 0xc0021bfe 0xc0021e30 0x804a165 0x80486a0 0x80480e0 0x80487d9 0x8048804.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 63 ticks
-Thread: 32 idle ticks, 29 kernel ticks, 2 user ticks
-hda2 (filesys): 61 reads, 304 writes
+(sm-full) open "quux"
+(sm-full) writing "quux"
+(sm-full) write 5678 bytes at offset 0 in "quux" failed: FAILED
+sm-full: exit(1)
+Execution of 'sm-full' complete.
+Timer: 72 ticks
+Thread: 34 idle ticks, 38 kernel ticks, 1 user ticks
+hda2 (filesys): 98 reads, 320 writes
 hda3 (scratch): 149 reads, 2 writes
-Console: 1562 characters output
+Console: 992 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

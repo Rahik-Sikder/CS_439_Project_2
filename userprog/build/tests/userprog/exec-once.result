@@ -1,1 +1,16 @@
-PASS
+FAIL
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (exec-once) begin
+  (child-simple) run
+  child-simple: exit(81)
+  (exec-once) end
+  exec-once: exit(0)
+Differences in `diff -u' format:
+  (exec-once) begin
+- (child-simple) run
+- child-simple: exit(81)
++ load: ù¤˜ÿÿ¿²€ù¤: open failed
+  (exec-once) end
+  exec-once: exit(0)
