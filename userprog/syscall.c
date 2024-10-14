@@ -156,7 +156,7 @@ void syscall_handler (struct intr_frame *f)
         fd =  *(sp++);
         buffer = (char *) *(sp++);
         size = (unsigned) *(sp++);
-        if (!validate_user_address(buffer)) {
+        if (!validate_user_address(buffer) || !is_user_vaddr(buffer + size - 1)) {
             f->eax = -1;  
             return;
         }
