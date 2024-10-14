@@ -1,6 +1,6 @@
 Copying tests/userprog/write-normal to scratch partition...
 Copying ../../tests/userprog/sample.txt to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/qU3sZ_Q7ir.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/oxaUHjbhB_.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -10,7 +10,7 @@ Kernel command line: -q -f extract run write-normal
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  62,873,600 loops/s.
+Calibrating timer...  58,982,400 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -28,18 +28,18 @@ Executing 'write-normal':
 (write-normal) create "test.txt"
 Page fault at 0: not present error writing page in kernel context.
 There is no crying in Pintos!
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc002c3f7
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc002c407
  cr2=00000000 error=00000002
  eax=00000000 ebx=bfffff6c ecx=0000008b edx=0804a58b
- esi=00000004 edi=c010afb0 esp=bfffff6c ebp=c010af64
+ esi=c010afb0 edi=00000004 esp=bfffff6c ebp=c010af64
  cs=0008 ds=0010 es=0010 ss=0021
 Kernel PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc002c3f7 0xc0021bfe 0xc0021e30 0x804a075 0x80480c6 0x804816a 0x804870b.
+Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc002c407 0xc0021bfe 0xc0021e30 0x804a075 0x80480c6 0x804816a 0x804870b.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
 Timer: 66 ticks
-Thread: 33 idle ticks, 31 kernel ticks, 2 user ticks
+Thread: 32 idle ticks, 33 kernel ticks, 1 user ticks
 hda2 (filesys): 85 reads, 304 writes
 hda3 (scratch): 148 reads, 2 writes
 Console: 1626 characters output

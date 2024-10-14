@@ -27,7 +27,7 @@ void syscall_handler (struct intr_frame *f)
 
   int *sp = (int *) f->esp;
   int syscall_number;
-  if(!get_user_32bit(sp)){
+  if(!get_user_32bit(sp) || !validate_user_address(sp)){
         int status = -1;
         struct thread *cur = thread_current (); // Get current thread/process
         cur->exit_status = status;              // Set exit status
@@ -59,19 +59,20 @@ void syscall_handler (struct intr_frame *f)
         thread_exit ();
         break;
       case SYS_EXEC:
-        char *cmd_line = *(char *) (sp++);
+        char *cmd_line = *((char **) (sp++));
         // Guide says there's a possible error here with this code apparently
         // returning b4 exec finishes loading the child -> don't really see
         // how it could given the current implementation but who knows
         tid_t result = process_execute (cmd_line);
-        return result;
+        f->eax = result;
+        return;
         break;
       case SYS_WAIT: /* Wait for a child process to die. */
         tid_t child = *(tid_t *) sp++;
         return process_wait (child);
         break;
       case SYS_CREATE: /* Create a file. */
-        *file = (char *) *(sp++);
+        *file = *(char **)sp++;
         unsigned initial_size = *(unsigned *) (sp++);
 
         if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
@@ -85,7 +86,7 @@ void syscall_handler (struct intr_frame *f)
           }
         break;
       case SYS_REMOVE: /* Delete a file. */
-        *file = (char *) *(sp++);
+        *file = *(char **)sp++;
         if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
           {
             f->eax = -1;
@@ -131,7 +132,7 @@ void syscall_handler (struct intr_frame *f)
         buffer = *(char **) ((char *) f->esp + 8);
         size = *(unsigned *) ((char *) f->esp + 12);
 
-        if (!validate_user_address(buffer)) {
+        if (!validate_user_address(buffer) || !is_user_vaddr(buffer + size - 1)) {
             f->eax = -1; 
             return;
         }

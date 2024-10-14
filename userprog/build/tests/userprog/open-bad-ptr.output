@@ -1,5 +1,5 @@
 Copying tests/userprog/open-bad-ptr to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/yzXS15AQHG.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/DVZHoZmG7i.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -9,7 +9,7 @@ Kernel command line: -q -f extract run open-bad-ptr
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  63,283,200 loops/s.
+Calibrating timer...  32,256,000 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -25,18 +25,18 @@ Executing 'open-bad-ptr':
 (open-bad-ptr) begin
 Page fault at 0: not present error writing page in kernel context.
 There is no crying in Pintos!
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc002c462
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc002c46f
  cr2=00000000 error=00000002
  eax=00000000 ebx=bfffff70 ecx=00000000 edx=20101234
- esi=00000006 edi=c010afb0 esp=bfffff70 ebp=c010af64
+ esi=c010afb0 edi=00000006 esp=bfffff70 ebp=c010af64
  cs=0008 ds=0010 es=0010 ss=0015
 Kernel PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc002c462 0xc0021bfe 0xc0021e30 0x804a02d 0x80480b2 0x80480fe 0x804869f.
+Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc002c46f 0xc0021bfe 0xc0021e30 0x804a02d 0x80480b2 0x80480fe 0x804869f.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 69 ticks
-Thread: 33 idle ticks, 34 kernel ticks, 2 user ticks
+Timer: 60 ticks
+Thread: 32 idle ticks, 26 kernel ticks, 2 user ticks
 hda2 (filesys): 59 reads, 294 writes
 hda3 (scratch): 144 reads, 2 writes
 Console: 1548 characters output

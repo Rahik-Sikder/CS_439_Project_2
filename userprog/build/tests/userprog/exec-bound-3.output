@@ -1,5 +1,5 @@
 Copying tests/userprog/exec-bound-3 to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/2tv0VbJ_U3.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/R5vBon24LK.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -9,7 +9,7 @@ Kernel command line: -q -f extract run exec-bound-3
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  62,873,600 loops/s.
+Calibrating timer...  55,603,200 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -23,23 +23,23 @@ Putting 'exec-bound-3' into the file system...
 Erasing ustar archive...
 Executing 'exec-bound-3':
 (exec-bound-3) begin
-Page fault at 0xffffffff: not present error reading page in kernel context.
+Page fault at 0x804e000: not present error reading page in kernel context.
 There is no crying in Pintos!
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc00280ca
- cr2=ffffffff error=00000000
- eax=ffffffff ebx=c0109000 ecx=c010a050 edx=ffffffff
- esi=ffffffff edi=00001000 esp=c010aef4 ebp=c010aea4
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc00280d4
+ cr2=0804e000 error=00000000
+ eax=0804e000 ebx=c0109000 ecx=c010a050 edx=0804dfff
+ esi=0804dfff edi=00001000 esp=c010aef4 ebp=c010aea4
  cs=0008 ds=0010 es=0010 ss=8197
 Kernel PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc00280ca 0xc0028197 0xc002b271 0xc002c3d8 0xc0021bfe 0xc0021e30 0x804a052 0x80480b8 0x8048171 0x8048712.
+Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc00280d4 0xc0028197 0xc002b271 0xc002c3eb 0xc0021bfe 0xc0021e30 0x804a052 0x80480b8 0x8048171 0x8048712.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 66 ticks
-Thread: 32 idle ticks, 31 kernel ticks, 3 user ticks
+Timer: 63 ticks
+Thread: 31 idle ticks, 31 kernel ticks, 1 user ticks
 hda2 (filesys): 59 reads, 302 writes
 hda3 (scratch): 148 reads, 2 writes
-Console: 1590 characters output
+Console: 1589 characters output
 Keyboard: 0 keys pressed
 Exception: 1 page faults
 Powering off...

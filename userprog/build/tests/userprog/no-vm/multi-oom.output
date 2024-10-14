@@ -1,5 +1,5 @@
 Copying tests/userprog/no-vm/multi-oom to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/7LmgNaDNlu.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/FF1_EP3pvt.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -9,7 +9,7 @@ Kernel command line: -q -f extract run multi-oom
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  63,180,800 loops/s.
+Calibrating timer...  58,777,600 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -23,23 +23,23 @@ Putting 'multi-oom' into the file system...
 Erasing ustar archive...
 Executing 'multi-oom':
 (multi-oom) begin
-Page fault at 0xfffffff0: not present error reading page in kernel context.
+Page fault at 0: not present error writing page in kernel context.
 There is no crying in Pintos!
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc00280ca
- cr2=fffffff0 error=00000000
- eax=fffffff0 ebx=c0109000 ecx=c010a050 edx=fffffff0
- esi=fffffff0 edi=00001000 esp=c010aef4 ebp=c010aea4
- cs=0008 ds=0010 es=0010 ss=8197
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc002c46f
+ cr2=00000000 error=00000002
+ eax=00000000 ebx=bfffff20 ecx=00000000 edx=0804aee2
+ esi=c014efb0 edi=00000006 esp=bfffff20 ebp=c014ef64
+ cs=0008 ds=0010 es=0010 ss=ef50
 Kernel PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc00280ca 0xc0028197 0xc002b271 0xc002c3d8 0xc0021bfe 0xc0021e30 0x804a662 0x80481ba 0x8048290 0x8048929.
+Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc002c46f 0xc0021bfe 0xc0021e30 0x804a6ad 0x80480b9 0x80480d5 0x8048237 0x8048929.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 69 ticks
-Thread: 33 idle ticks, 34 kernel ticks, 2 user ticks
-hda2 (filesys): 59 reads, 332 writes
+Timer: 68 ticks
+Thread: 33 idle ticks, 29 kernel ticks, 6 user ticks
+hda2 (filesys): 620 reads, 332 writes
 hda3 (scratch): 163 reads, 2 writes
-Console: 1578 characters output
+Console: 1547 characters output
 Keyboard: 0 keys pressed
 Exception: 1 page faults
 Powering off...

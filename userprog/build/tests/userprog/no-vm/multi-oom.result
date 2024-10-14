@@ -1,6 +1,6 @@
 FAIL
 Kernel panic in run: PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc00280ca 0xc0028197 0xc002b271 0xc002c3d8 0xc0021bfe 0xc0021e30 0x804a662 0x80481ba 0x8048290 0x8048929
+Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc002c46f 0xc0021bfe 0xc0021e30 0x804a6ad 0x80480b9 0x80480d5 0x8048237 0x8048929
 Translation of call stack:
 In kernel.o:
 0xc0028d6b: debug_panic (.../../lib/kernel/debug.c:37)
@@ -8,16 +8,14 @@ In kernel.o:
 0xc002bfcf: exception_init (..../userprog/exception.c:30)
 0xc0021bfe: intr_handler (..../threads/interrupt.c:358)
 0xc0021e30: intr_entry (threads/intr-stubs.o:?)
-0xc00280ca: strlen (...ld/../../lib/string.c:285)
-0xc0028197: strlcpy (...ld/../../lib/string.c:318)
-0xc002b271: process_execute (.../../userprog/process.c:44)
-0xc002c3d8: syscall_handler (.../../userprog/syscall.c:67)
+0xc002c46f: syscall_handler (...../userprog/syscall.c:100)
 0xc0021bfe: intr_handler (..../threads/interrupt.c:358)
 0xc0021e30: intr_entry (threads/intr-stubs.o:?)
 In tests/userprog/no-vm/multi-oom:
-0x0804a662: exec (.../../lib/user/syscall.c:67)
-0x080481ba: spawn_child (...prog/no-vm/multi-oom.c:44)
-0x08048290: main (...rog/no-vm/multi-oom.c:148)
+0x0804a6ad: open (.../../lib/user/syscall.c:78)
+0x080480b9: consume_some_resources (...prog/no-vm/multi-oom.c:59)
+0x080480d5: consume_some_resources_and_die (...prog/no-vm/multi-oom.c:68)
+0x08048237: main (...rog/no-vm/multi-oom.c:119)
 0x08048929: _start (.../../../lib/user/entry.c:6)
 Translations of user virtual addresses above are based on a guess at
 the binary to use.  If this guess is incorrect, then those
