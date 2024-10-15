@@ -69,7 +69,9 @@ void syscall_handler (struct intr_frame *f)
         break;
       case SYS_WAIT: /* Wait for a child process to die. */
         tid_t child = *(tid_t *) sp++;
-        return process_wait (child);
+        int exit_status = process_wait (child);
+        f->eax = exit_status;
+        return;
         break;
       case SYS_CREATE: /* Create a file. */
         file = (char *) *(sp++);
@@ -164,7 +166,8 @@ void syscall_handler (struct intr_frame *f)
         if (fd == 1)
           {
             putbuf (buffer, size);
-            return size; // this return is needed -> should investigate more
+            f->eax = size;
+            return;
           }
         else
           {

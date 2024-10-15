@@ -1,2 +1,20 @@
 FAIL
-run: wait for child 1 of 10 returned 4 (expected 0): FAILED
+Kernel panic in run: PANIC at ../../lib/kernel/list.c:78 in list_next(): assertion `is_head (elem) || is_interior (elem)' failed.
+Call stack: 0xc0028d6b 0xc0028eca 0xc002b2ed 0xc002c3fb 0xc0021bfe 0xc0021e30 0x804a251 0x8048401 0x8048104 0x80488d9 0x8048904
+Translation of call stack:
+In kernel.o:
+0xc0028d6b: debug_panic (.../../lib/kernel/debug.c:37)
+0xc0028eca: list_end (..../../lib/kernel/list.c:88)
+0xc002b2ed: process_wait (...../userprog/process.c:101)
+0xc002c3fb: syscall_handler (.../../userprog/syscall.c:73)
+0xc0021bfe: intr_handler (..../threads/interrupt.c:358)
+0xc0021e30: intr_entry (threads/intr-stubs.o:?)
+In tests/filesys/base/syn-write:
+0x0804a251: wait (.../../lib/user/syscall.c:69)
+0x08048401: wait_children (...uild/../../tests/lib.c:93)
+0x08048104: test_main (...te.c:26 (discriminator 2))
+0x080488d9: main (...ild/../../tests/main.c:12)
+0x08048904: _start (.../../../lib/user/entry.c:6)
+Translations of user virtual addresses above are based on a guess at
+the binary to use.  If this guess is incorrect, then those
+translations will be misleading.

@@ -49,9 +49,9 @@ FAIL tests/userprog/exec-bound-3
 FAIL tests/userprog/exec-multiple
 FAIL tests/userprog/exec-missing
 FAIL tests/userprog/exec-bad-ptr
-FAIL tests/userprog/wait-simple
+pass tests/userprog/wait-simple
 FAIL tests/userprog/wait-twice
-FAIL tests/userprog/wait-killed
+pass tests/userprog/wait-killed
 pass tests/userprog/wait-bad-pid
 FAIL tests/userprog/multi-recurse
 FAIL tests/userprog/multi-child-fd

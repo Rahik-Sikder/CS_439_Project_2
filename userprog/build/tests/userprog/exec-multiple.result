@@ -6,7 +6,7 @@ In kernel.o:
 0xc0028d6b: debug_panic (.../../lib/kernel/debug.c:37)
 0xc0028eca: list_end (..../../lib/kernel/list.c:88)
 0xc002b2ed: process_wait (...../userprog/process.c:101)
-0xc002c3fb: syscall_handler (.../../userprog/syscall.c:72)
+0xc002c3fb: syscall_handler (.../../userprog/syscall.c:73)
 0xc0021bfe: intr_handler (..../threads/interrupt.c:358)
 0xc0021e30: intr_entry (threads/intr-stubs.o:?)
 In tests/userprog/exec-multiple:

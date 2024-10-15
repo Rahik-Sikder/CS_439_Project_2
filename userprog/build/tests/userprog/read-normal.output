@@ -1,6 +1,6 @@
 Copying tests/userprog/read-normal to scratch partition...
 Copying ../../tests/userprog/sample.txt to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/7qrP0h3fZH.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/TcNe8Surgu.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -10,7 +10,7 @@ Kernel command line: -q -f extract run read-normal
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  63,180,800 loops/s.
+Calibrating timer...  62,259,200 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -27,12 +27,12 @@ Executing 'read-normal':
 (read-normal) begin
 (read-normal) open "sample.txt" for verification
 Kernel PANIC at ../../filesys/file.c:133 in file_length(): assertion `file != NULL' failed.
-Call stack: 0xc0028d6b 0xc002d165 0xc002c4fb 0xc0021bfe 0xc0021e30 0x804a02c 0x804850a 0x8048650 0x80480c2 0x80480f6 0x8048697.
+Call stack: 0xc0028d6b 0xc002d175 0xc002c4fe 0xc0021bfe 0xc0021e30 0x804a02c 0x804850a 0x8048650 0x80480c2 0x80480f6 0x8048697.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 63 ticks
-Thread: 31 idle ticks, 32 kernel ticks, 0 user ticks
+Timer: 62 ticks
+Thread: 32 idle ticks, 30 kernel ticks, 0 user ticks
 hda2 (filesys): 89 reads, 300 writes
 hda3 (scratch): 146 reads, 2 writes
 Console: 1291 characters output

@@ -1,6 +1,6 @@
 Copying tests/userprog/write-zero to scratch partition...
 Copying ../../tests/userprog/sample.txt to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/YiwXn89k0h.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/FKMkDoIprz.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -10,7 +10,7 @@ Kernel command line: -q -f extract run write-zero
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  63,488,000 loops/s.
+Calibrating timer...  62,464,000 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -29,9 +29,9 @@ Executing 'write-zero':
 (write-zero) end
 write-zero: exit(0)
 Execution of 'write-zero' complete.
-Timer: 70 ticks
-Thread: 36 idle ticks, 34 kernel ticks, 0 user ticks
-hda2 (filesys): 87 reads, 300 writes
+Timer: 61 ticks
+Thread: 32 idle ticks, 28 kernel ticks, 1 user ticks
+hda2 (filesys): 88 reads, 300 writes
 hda3 (scratch): 146 reads, 2 writes
 Console: 968 characters output
 Keyboard: 0 keys pressed

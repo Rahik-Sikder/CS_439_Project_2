@@ -1,5 +1,5 @@
 Copying tests/userprog/no-vm/multi-oom to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/BXoornpk2q.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/wcEoXFIVmo.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -9,7 +9,7 @@ Kernel command line: -q -f extract run multi-oom
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  60,313,600 loops/s.
+Calibrating timer...  62,054,400 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -24,25 +24,16 @@ Erasing ustar archive...
 Executing 'multi-oom':
 (multi-oom) begin
 multi-oom: exit(-1)
-(multi-oom) crashed child should return -1.: FAILED
-multi-oom: exit(1)
-Page fault at 0xcccccccc: not present error reading page in kernel context.
-There is no crying in Pintos!
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc0028e7f
- cr2=cccccccc error=00000000
- eax=cccccccc ebx=cccccccc ecx=c0020a26 edx=c014e09c
- esi=c014e09c edi=c0020a26 esp=00000001 ebp=c014ae24
- cs=0008 ds=0010 es=0010 ss=a000
-Kernel PANIC at ../../userprog/exception.c:94 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028d6b 0xc002bf21 0xc002bfcf 0xc0021bfe 0xc0021e30 0xc0028e7f 0xc0028fce 0xc002981e 0xc0022c18 0xc002134f 0xc002c3e0 0xc0021bfe 0xc0021e30 0x804a631 0x80484b3 0x80482ec 0x8048929.
+Kernel PANIC at ../../lib/kernel/list.c:78 in list_next(): assertion `is_head (elem) || is_interior (elem)' failed.
+Call stack: 0xc0028d6b 0xc0028eca 0xc002b2ed 0xc002c3fb 0xc0021bfe 0xc0021e30 0x804a671 0x80482a1 0x8048929.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 78 ticks
-Thread: 33 idle ticks, 35 kernel ticks, 10 user ticks
+Timer: 67 ticks
+Thread: 37 idle ticks, 25 kernel ticks, 5 user ticks
 hda2 (filesys): 873 reads, 332 writes
 hda3 (scratch): 163 reads, 2 writes
-Console: 1693 characters output
+Console: 1215 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

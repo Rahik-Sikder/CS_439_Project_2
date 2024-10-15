@@ -1,6 +1,6 @@
 Copying tests/filesys/base/syn-write to scratch partition...
 Copying tests/filesys/base/child-syn-wrt to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/pOQTIV6X07.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/8aSsFq9sb5.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -10,7 +10,7 @@ Kernel command line: -q -f extract run syn-write
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  62,361,600 loops/s.
+Calibrating timer...  60,518,400 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -37,15 +37,26 @@ Executing 'syn-write':
 (syn-write) exec child 9 of 10: "child-syn-wrt 8"
 (syn-write) exec child 10 of 10: "child-syn-wrt 9"
 child-syn-wrt: exit(0)
-(syn-write) wait for child 1 of 10 returned 4 (expected 0)
-(syn-write) wait for child 1 of 10 returned 4 (expected 0): FAILED
-syn-write: exit(1)
-Execution of 'syn-write' complete.
-Timer: 76 ticks
-Thread: 33 idle ticks, 39 kernel ticks, 4 user ticks
-hda2 (filesys): 153 reads, 651 writes
+(syn-write) wait for child 1 of 10 returned 0 (expected 0)
+child-syn-wrt: exit(5)
+child-syn-wrt: exit(7)
+child-syn-wrt: exit(8)
+child-syn-wrt: exit(9)
+child-syn-wrt: exit(4)
+child-syn-wrt: exit(2)
+child-syn-wrt: exit(3)
+child-syn-wrt: exit(1)
+(syn-write) wait for child 2 of 10 returned 1 (expected 1)
+Kernel PANIC at ../../lib/kernel/list.c:78 in list_next(): assertion `is_head (elem) || is_interior (elem)' failed.
+Call stack: 0xc0028d6b 0xc0028eca 0xc002b2ed 0xc002c3fb 0xc0021bfe 0xc0021e30 0x804a251 0x8048401 0x8048104 0x80488d9 0x8048904.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 75 ticks
+Thread: 34 idle ticks, 32 kernel ticks, 9 user ticks
+hda2 (filesys): 496 reads, 659 writes
 hda3 (scratch): 314 reads, 2 writes
-Console: 1596 characters output
+Console: 2117 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...
