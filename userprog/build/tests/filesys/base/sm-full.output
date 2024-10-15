@@ -1,5 +1,5 @@
 Copying tests/filesys/base/sm-full to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/gn8jGluYqG.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/F97JnYL_Qm.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -9,7 +9,7 @@ Kernel command line: -q -f extract run sm-full
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  58,880,000 loops/s.
+Calibrating timer...  60,928,000 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -33,8 +33,8 @@ Call stack: 0xc0028d6b 0xc002d175 0xc002c4fe 0xc0021bfe 0xc0021e30 0x804a19c 0x8
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 63 ticks
-Thread: 31 idle ticks, 30 kernel ticks, 2 user ticks
+Timer: 61 ticks
+Thread: 31 idle ticks, 28 kernel ticks, 2 user ticks
 hda2 (filesys): 90 reads, 332 writes
 hda3 (scratch): 149 reads, 2 writes
 Console: 1324 characters output

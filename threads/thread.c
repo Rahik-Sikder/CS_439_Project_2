@@ -287,12 +287,13 @@ void thread_exit (void)
   ASSERT (!intr_context ());
 
   struct thread *cur_thread = thread_current ();
-  
 
   // free parent if waiting on child
+  // printf ("thread %d freeing parent\n", cur_thread->tid);
   sema_up (&cur_thread->sema_wait);
 
   // become zombie
+  // printf ("thread %d becoming zombie\n", cur_thread->tid);
   sema_down (&cur_thread->sema_cure);
 
   // cure all child zombies
@@ -507,7 +508,7 @@ static void init_thread (struct thread *t, const char *name, int priority)
   t->curr_fd = 3;
   list_init (&t->children);
   list_init (&t->lock_waiters);
-  list_init(&t->file_descriptors);
+  list_init (&t->file_descriptors);
   old_level = intr_disable ();
   list_push_back (&all_list, &t->allelem);
   intr_set_level (old_level);

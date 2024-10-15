@@ -1,18 +1,2 @@
 FAIL
-Kernel panic in run: PANIC at ../../lib/kernel/list.c:78 in list_next(): assertion `is_head (elem) || is_interior (elem)' failed.
-Call stack: 0xc0028d6b 0xc0028eca 0xc002b2ed 0xc002c3fb 0xc0021bfe 0xc0021e30 0x804a671 0x80482a1 0x8048929
-Translation of call stack:
-In kernel.o:
-0xc0028d6b: debug_panic (.../../lib/kernel/debug.c:37)
-0xc0028eca: list_end (..../../lib/kernel/list.c:88)
-0xc002b2ed: process_wait (...../userprog/process.c:101)
-0xc002c3fb: syscall_handler (.../../userprog/syscall.c:73)
-0xc0021bfe: intr_handler (..../threads/interrupt.c:358)
-0xc0021e30: intr_entry (threads/intr-stubs.o:?)
-In tests/userprog/no-vm/multi-oom:
-0x0804a671: wait (.../../lib/user/syscall.c:69)
-0x080482a1: main (...rog/no-vm/multi-oom.c:153)
-0x08048929: _start (.../../../lib/user/entry.c:6)
-Translations of user virtual addresses above are based on a guess at
-the binary to use.  If this guess is incorrect, then those
-translations will be misleading.
+run: crashed child should return -1.: FAILED
