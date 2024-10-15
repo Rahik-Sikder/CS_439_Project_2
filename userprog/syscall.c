@@ -130,8 +130,8 @@ void syscall_handler (struct intr_frame *f)
         found_file = get_file_from_fd (fd);
 
         if (found_file == NULL)
-          return syscall_error (f);
-
+            return syscall_error (f);
+            
         f->eax = file_length (found_file);
         break;
 
@@ -141,8 +141,8 @@ void syscall_handler (struct intr_frame *f)
         size = (unsigned) *(sp++);
         if (!validate_user_address (buffer) ||
             !is_user_vaddr (buffer + size - 1))
-          return syscall_error (f);
-
+            return syscall_error (f);
+        
         if (fd == 0)
           {
             for (unsigned i = 0; i < size; i++)
@@ -155,13 +155,13 @@ void syscall_handler (struct intr_frame *f)
           {
             found_file = get_file_from_fd (fd);
 
-            if (file == NULL)
+            if (found_file == NULL)
               {
                 syscall_error (f);
                 return;
               }
 
-            f->eax = file_read (file, buffer, size);
+            f->eax = file_read (found_file, buffer, size);
           }
         break;
 
