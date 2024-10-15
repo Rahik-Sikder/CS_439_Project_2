@@ -76,9 +76,10 @@ void syscall_handler (struct intr_frame *f)
       case SYS_CREATE: /* Create a file. */
         file = (char *) *(sp++);
         unsigned initial_size = *(unsigned *) (sp++);
-        if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0 || initial_size == 0)
+
+        if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
           {
-            f->eax = -1;
+            f->eax = false;
           }
         else
           {
@@ -134,12 +135,10 @@ void syscall_handler (struct intr_frame *f)
         fd = *(sp++);
         buffer = (char *) *(sp++);
         size = (unsigned) *(sp++);
-
         if (!validate_user_address(buffer) || !is_user_vaddr(buffer + size - 1)) {
             f->eax = -1; 
             return;
         }
-
         if (fd == 0) { 
             for (unsigned i = 0; i < size; i++) {
                 buffer[i] = input_getc();  
@@ -147,6 +146,7 @@ void syscall_handler (struct intr_frame *f)
             f->eax = size;  
         } else {
             found_file = get_file_from_fd(fd);  
+
             if (file == NULL) {
                 f->eax = -1;  
                 return;
@@ -172,7 +172,6 @@ void syscall_handler (struct intr_frame *f)
         else
           {
             struct file *file = get_file_from_fd(fd);  // Retrieve the file using fd
-
             if (file == NULL) {
                 f->eax = -1;  // Return error if file not found
                 return;
