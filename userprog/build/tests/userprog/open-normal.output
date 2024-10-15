@@ -1,6 +1,6 @@
 Copying tests/userprog/open-normal to scratch partition...
 Copying ../../tests/userprog/sample.txt to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/gaHmGA5Lty.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/CDRh77L8dB.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -28,11 +28,11 @@ Executing 'open-normal':
 (open-normal) end
 open-normal: exit(0)
 Execution of 'open-normal' complete.
-Timer: 68 ticks
-Thread: 32 idle ticks, 36 kernel ticks, 0 user ticks
-hda2 (filesys): 101 reads, 300 writes
+Timer: 62 ticks
+Thread: 32 idle ticks, 30 kernel ticks, 0 user ticks
+hda2 (filesys): 88 reads, 300 writes
 hda3 (scratch): 146 reads, 2 writes
-Console: 945 characters output
+Console: 944 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

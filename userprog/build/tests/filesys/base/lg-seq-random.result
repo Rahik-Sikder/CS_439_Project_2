@@ -1,2 +1,21 @@
 FAIL
-run: write 574 bytes at offset 0 in "nibble" failed: FAILED
+Kernel panic in run: PANIC at ../../filesys/file.c:133 in file_length(): assertion `file != NULL' failed.
+Call stack: 0xc0028d6b 0xc002d165 0xc002c4fb 0xc0021bfe 0xc0021e30 0x804a1cc 0x8048511 0x8048657 0x80487d1 0x804810c 0x8048809 0x8048834
+Translation of call stack:
+In kernel.o:
+0xc0028d6b: debug_panic (.../../lib/kernel/debug.c:37)
+0xc002d165: file_seek (.../../../filesys/file.c:140)
+0xc002c4fb: syscall_handler (...../userprog/syscall.c:129)
+0xc0021bfe: intr_handler (..../threads/interrupt.c:358)
+0xc0021e30: intr_entry (threads/intr-stubs.o:?)
+In tests/filesys/base/lg-seq-random:
+0x0804a1cc: filesize (.../../lib/user/syscall.c:80)
+0x08048511: check_file_handle (...ild/../../tests/lib.c:110)
+0x08048657: check_file (...b.c:149 (discriminator 2))
+0x080487d1: seq_test (...sts/filesys/seq-test.c:36)
+0x0804810c: test_main (...ys/base/seq-random.inc:22)
+0x08048809: main (...ild/../../tests/main.c:12)
+0x08048834: _start (.../../../lib/user/entry.c:6)
+Translations of user virtual addresses above are based on a guess at
+the binary to use.  If this guess is incorrect, then those
+translations will be misleading.

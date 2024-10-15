@@ -1,5 +1,5 @@
 Copying tests/filesys/base/sm-full to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/1K2U0_8UDN.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/_bLNEorTJs.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -9,7 +9,7 @@ Kernel command line: -q -f extract run sm-full
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  52,736,000 loops/s.
+Calibrating timer...  62,771,200 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -26,14 +26,18 @@ Executing 'sm-full':
 (sm-full) create "quux"
 (sm-full) open "quux"
 (sm-full) writing "quux"
-(sm-full) write 5678 bytes at offset 0 in "quux" failed: FAILED
-sm-full: exit(1)
-Execution of 'sm-full' complete.
-Timer: 72 ticks
-Thread: 34 idle ticks, 38 kernel ticks, 1 user ticks
-hda2 (filesys): 98 reads, 320 writes
+(sm-full) close "quux"
+(sm-full) open "quux" for verification
+Kernel PANIC at ../../filesys/file.c:133 in file_length(): assertion `file != NULL' failed.
+Call stack: 0xc0028d6b 0xc002d165 0xc002c4fb 0xc0021bfe 0xc0021e30 0x804a19c 0x80484e5 0x804862b 0x80487a1 0x80480e0 0x80487d9 0x8048804.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 78 ticks
+Thread: 42 idle ticks, 36 kernel ticks, 0 user ticks
+hda2 (filesys): 90 reads, 332 writes
 hda3 (scratch): 149 reads, 2 writes
-Console: 992 characters output
+Console: 1324 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

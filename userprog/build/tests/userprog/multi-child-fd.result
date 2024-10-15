@@ -1,11 +1,11 @@
 FAIL
 Kernel panic in run: PANIC at ../../filesys/file.c:133 in file_length(): assertion `file != NULL' failed.
-Call stack: 0xc0028d6b 0xc002d185 0xc002c506 0xc0021bfe 0xc0021e30 0x804a0ac 0x8048586 0x804812c 0x8048172 0x8048713
+Call stack: 0xc0028d6b 0xc002d165 0xc002c4fb 0xc0021bfe 0xc0021e30 0x804a0ac 0x8048586 0x804812c 0x8048172 0x8048713
 Translation of call stack:
 In kernel.o:
 0xc0028d6b: debug_panic (.../../lib/kernel/debug.c:37)
-0xc002d185: file_seek (.../../../filesys/file.c:140)
-0xc002c506: syscall_handler (...../userprog/syscall.c:128)
+0xc002d165: file_seek (.../../../filesys/file.c:140)
+0xc002c4fb: syscall_handler (...../userprog/syscall.c:129)
 0xc0021bfe: intr_handler (..../threads/interrupt.c:358)
 0xc0021e30: intr_entry (threads/intr-stubs.o:?)
 In tests/userprog/multi-child-fd:

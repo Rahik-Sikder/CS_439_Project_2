@@ -59,7 +59,7 @@ void syscall_handler (struct intr_frame *f)
         thread_exit ();
         break;
       case SYS_EXEC:
-        char *cmd_line = (char *) (sp++);
+        char *cmd_line = (char *) *(sp++);
         // Guide says there's a possible error here with this code apparently
         // returning b4 exec finishes loading the child -> don't really see
         // how it could given the current implementation but who knows
@@ -72,21 +72,21 @@ void syscall_handler (struct intr_frame *f)
         return process_wait (child);
         break;
       case SYS_CREATE: /* Create a file. */
-        file = (char *) (sp++);
+        file = (char *) *(sp++);
         unsigned initial_size = *(unsigned *) (sp++);
-
-        if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
+        if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0 || initial_size == 0)
           {
-            f->eax = false;
+            f->eax = -1;
           }
         else
           {
+            // printf("input string '%s' length of %d with initial size %d\n", file, strlen (file), initial_size);
             int status = filesys_create (file, initial_size);
             f->eax = status;
           }
         break;
       case SYS_REMOVE: /* Delete a file. */
-        file = (char *) (sp++);
+        file = (char *) *(sp++);
         if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
           {
             f->eax = -1;
@@ -97,7 +97,8 @@ void syscall_handler (struct intr_frame *f)
           }
         break;
       case SYS_OPEN: /* Open a file. */
-        file = (char *) (sp++);
+        file = (char *) *(sp++);
+
         if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
           {
             f->eax = -1;

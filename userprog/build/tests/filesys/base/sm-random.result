@@ -1,2 +1,2 @@
 FAIL
-run: write 13 bytes at offset 572 failed: FAILED
+run: read 13 bytes at offset 143 failed: FAILED

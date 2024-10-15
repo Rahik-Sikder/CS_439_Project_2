@@ -1,2 +1,2 @@
 FAIL
-run: write "data": FAILED
+run: read "data": FAILED

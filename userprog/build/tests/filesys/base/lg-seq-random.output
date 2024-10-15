@@ -1,16 +1,15 @@
 Copying tests/filesys/base/lg-seq-random to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/I_LAQ7MlcR.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/7SLVaVVnxS.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
 1
 LLooaaddiinngg.....................
-.
 Kernel command line: -q -f extract run lg-seq-random
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  37,683,200 loops/s.
+Calibrating timer...  62,464,000 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -27,14 +26,18 @@ Executing 'lg-seq-random':
 (lg-seq-random) create "nibble"
 (lg-seq-random) open "nibble"
 (lg-seq-random) writing "nibble"
-(lg-seq-random) write 574 bytes at offset 0 in "nibble" failed: FAILED
-lg-seq-random: exit(1)
-Execution of 'lg-seq-random' complete.
-Timer: 67 ticks
-Thread: 32 idle ticks, 32 kernel ticks, 3 user ticks
-hda2 (filesys): 98 reads, 456 writes
+(lg-seq-random) close "nibble"
+(lg-seq-random) open "nibble" for verification
+Kernel PANIC at ../../filesys/file.c:133 in file_length(): assertion `file != NULL' failed.
+Call stack: 0xc0028d6b 0xc002d165 0xc002c4fb 0xc0021bfe 0xc0021e30 0x804a1cc 0x8048511 0x8048657 0x80487d1 0x804810c 0x8048809 0x8048834.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 83 ticks
+Thread: 38 idle ticks, 39 kernel ticks, 6 user ticks
+hda2 (filesys): 339 reads, 749 writes
 hda3 (scratch): 149 reads, 2 writes
-Console: 1059 characters output
+Console: 1389 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

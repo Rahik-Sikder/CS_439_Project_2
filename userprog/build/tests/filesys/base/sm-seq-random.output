@@ -1,5 +1,5 @@
 Copying tests/filesys/base/sm-seq-random to scratch partition...
-qemu-system-i386 -device isa-debug-exit -drive file=/tmp/cA8kTdWSNx.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
+qemu-system-i386 -device isa-debug-exit -drive file=/tmp/VYTxwq_TNN.dsk,format=raw,index=0,media=disk -m 4 -net none -nographic -monitor null
 c[?7l[2J[0mSeaBIOS (version 1.13.0-1ubuntu1.1)
 Booting from Hard Disk...
 PPiiLLoo  hhddaa1
@@ -9,7 +9,7 @@ Kernel command line: -q -f extract run sm-seq-random
 Pintos booting with 3,968 kB RAM...
 367 pages available in kernel pool.
 367 pages available in user pool.
-Calibrating timer...  58,163,200 loops/s.
+Calibrating timer...  62,361,600 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
 hda1: 188 sectors (94 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
@@ -26,14 +26,18 @@ Executing 'sm-seq-random':
 (sm-seq-random) create "nibble"
 (sm-seq-random) open "nibble"
 (sm-seq-random) writing "nibble"
-(sm-seq-random) write 412 bytes at offset 0 in "nibble" failed: FAILED
-sm-seq-random: exit(1)
-Execution of 'sm-seq-random' complete.
-Timer: 64 ticks
-Thread: 31 idle ticks, 31 kernel ticks, 2 user ticks
-hda2 (filesys): 98 reads, 320 writes
+(sm-seq-random) close "nibble"
+(sm-seq-random) open "nibble" for verification
+Kernel PANIC at ../../filesys/file.c:133 in file_length(): assertion `file != NULL' failed.
+Call stack: 0xc0028d6b 0xc002d165 0xc002c4fb 0xc0021bfe 0xc0021e30 0x804a1cc 0x8048511 0x8048657 0x80487d1 0x804810c 0x8048809 0x8048834.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 74 ticks
+Thread: 35 idle ticks, 37 kernel ticks, 2 user ticks
+hda2 (filesys): 105 reads, 340 writes
 hda3 (scratch): 149 reads, 2 writes
-Console: 1059 characters output
+Console: 1389 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...
