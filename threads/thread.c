@@ -287,6 +287,7 @@ void thread_exit (void)
   ASSERT (!intr_context ());
 
   struct thread *cur_thread = thread_current ();
+  printf ("%s: exit(%d)\n", cur_thread->name, cur_thread->exit_status);
 
   // free parent if waiting on child
   // printf ("thread %d freeing parent\n", cur_thread->tid);

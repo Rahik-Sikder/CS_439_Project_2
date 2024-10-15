@@ -26,7 +26,6 @@ int syscall_error (struct intr_frame *f)
   struct thread *cur = thread_current (); // Get current thread/process
   cur->exit_status = status;              // Set exit status
   f->eax = status;
-  printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
   thread_exit ();
   return -1;
 }
@@ -62,7 +61,7 @@ void syscall_handler (struct intr_frame *f)
         if (status < -1)
           status = -1;
         cur->exit_status = status; // Set exit status
-        printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
+        
         thread_exit ();
         break;
 
@@ -94,14 +93,14 @@ void syscall_handler (struct intr_frame *f)
         if (!get_user_32bit(file) || file == NULL) {
             f->eax = 0; // Indicate failure
             cur->exit_status = -1;              // Set exit status
-            printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
+            
             thread_exit ();
         } else {
             // If the file name is an empty string, it should also fail
             if (strlen(file) == 0) {
                 f->eax = 0; // File name is empty, indicate failure
                 cur->exit_status = -1;              // Set exit status
-                printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
+                
                 thread_exit ();
             } else {
                 // Attempt to create the file
