@@ -86,15 +86,29 @@ void syscall_handler (struct intr_frame *f)
         break;
 
       case SYS_CREATE: /* Create a file. */
-        file = (char *) *(sp++);
+       // Get the file name and initial size from the stack
+        char *file = (char *) *(sp++);
         unsigned initial_size = *(unsigned *) (sp++);
 
-        if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
-          return syscall_error (f);
-
-        // printf("input string '%s' length of %d with initial size %d\n",
-        // file, strlen (file), initial_size);
-        f->eax = filesys_create (file, initial_size);
+        // Check if the file pointer is NULL or an invalid user address
+        if (!get_user_32bit(file) || file == NULL) {
+            f->eax = 0; // Indicate failure
+            cur->exit_status = -1;              // Set exit status
+            printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
+            thread_exit ();
+        } else {
+            // If the file name is an empty string, it should also fail
+            if (strlen(file) == 0) {
+                f->eax = 0; // File name is empty, indicate failure
+                cur->exit_status = -1;              // Set exit status
+                printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
+                thread_exit ();
+            } else {
+                // Attempt to create the file
+                bool success = filesys_create(file, initial_size);
+                f->eax = success;
+            }
+        }
         break;
 
       case SYS_REMOVE: /* Delete a file. */
