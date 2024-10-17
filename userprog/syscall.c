@@ -9,13 +9,15 @@
 #include "filesys/file.h"
 
 static void syscall_handler (struct intr_frame *);
-
 bool validate_user_address (const void *addr);
 
 static struct file *get_file_from_fd (int fd);
 bool get_user_32bit (const void *src);
+bool get_user_pointer(const void *addr);
 
-void syscall_init (void)
+
+    void
+    syscall_init (void)
 {
   intr_register_int (0x30, 3, INTR_ON, syscall_handler, "syscall");
 }
@@ -74,10 +76,10 @@ void syscall_handler (struct intr_frame *f)
         thread_exit ();
         break;
 
-    //date test
+        // date test
       case SYS_EXEC:
         char *cmd_line = (char *) *(sp++);
-        if (!validate_user_address (cmd_line) ||
+        if (!get_user_pointer (cmd_line) || !validate_user_address (cmd_line) ||
             pagedir_get_page (thread_current ()->pagedir, cmd_line) == NULL)
           return syscall_error (f);
 
@@ -317,4 +319,25 @@ bool get_user_32bit (const void *src)
           return false;
         }
     }
+    return true;
+}
+
+bool get_user_pointer (const void *src)
+{
+  /* Check that all 4 bytes of the source address are in valid user memory */
+  for (const char *ptr = src;; ptr++)
+    {
+      /* Check if the current byte is a valid user address. */
+      if (!validate_user_address (ptr))
+        {
+          return false;
+        }
+
+      /* Stop the check once the null terminator is reached. */
+      if (*ptr == '\0')
+        {
+          break;
+        }
+    }
+    return true;
 }
