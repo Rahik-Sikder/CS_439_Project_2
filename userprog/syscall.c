@@ -120,8 +120,17 @@ void syscall_handler (struct intr_frame *f)
 
       case SYS_OPEN: /* Open a file. */
         file = (char *) *(sp++);
-        if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
+        if (file == NULL || !is_user_vaddr (file) ){
           return syscall_error (f);
+        }
+        else if (strlen (file) == 0){
+          int return_val = -1;
+          struct thread *cur = thread_current (); // Get current thread/process
+          cur->exit_status = return_val;              // Set exit status
+          f->eax = (int) -1;
+          return -1;
+        }
+          
 
         struct file *opened_file = filesys_open (file);
         if(opened_file==NULL){
