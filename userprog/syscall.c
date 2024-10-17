@@ -74,6 +74,7 @@ void syscall_handler (struct intr_frame *f)
         thread_exit ();
         break;
 
+    //date test
       case SYS_EXEC:
         char *cmd_line = (char *) *(sp++);
         if (!validate_user_address (cmd_line) ||
