@@ -106,6 +106,7 @@ struct thread
   struct list_elem childelem;
   struct semaphore sema_wait;
   struct semaphore sema_cure; /* parent cures child from being a zombie */
+  struct semaphore sema_load;
   struct list file_descriptors;
   int curr_fd;
 
