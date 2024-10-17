@@ -124,6 +124,14 @@ void syscall_handler (struct intr_frame *f)
           return syscall_error (f);
 
         struct file *opened_file = filesys_open (file);
+        if(opened_file==NULL){
+          int return_val = -1;
+          struct thread *cur = thread_current (); // Get current thread/process
+          cur->exit_status = return_val;              // Set exit status
+          f->eax = (int) -1;
+          return -1;
+        }
+
         struct file_descriptor *fd_entry =
             malloc (sizeof (struct file_descriptor));
         if (fd_entry == NULL)
