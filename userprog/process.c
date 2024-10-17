@@ -225,8 +225,13 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
   // Jake started driving
   char *token;
   char *rest;
-
+  // Milan started driving
+  printf("filename passed to load: %s\n", file_name);
+  // Milan stopped driving
   token = strtok_r (file_name, " ", &rest);
+  // printf("filename after split: %s\n", file_name);
+  // printf("token after split: %s\n", token);
+  // printf("rest after split: %s\n", rest);
   /* Allocate and activate page directory. */
   t->pagedir = pagedir_create ();
   if (t->pagedir == NULL)
@@ -315,7 +320,7 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
 
   /* Set up stack. */
   // Jake started driving
-  if (!setup_stack (esp, file_name))
+  if (!setup_stack (esp, token, rest))
     goto done;
   // Jake stopped driving
 
@@ -439,10 +444,14 @@ static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
 
 /* Create a minimal stack by mapping a zeroed page at the top of
    user virtual memory. */
-static bool setup_stack (void **esp, char *filename)
+// Milan started driving
+static bool setup_stack (void **esp, char *filename, char* args)
 {
   // Jake started driving
-  printf ("in setup_stack\n");
+  printf("in setup_stack\n");
+
+  printf("filename passed into setup: %s\n", filename);
+  printf("args passed into setup: %s\n", args);
 
   uint8_t *kpage;
   bool success = false;
@@ -460,46 +469,56 @@ static bool setup_stack (void **esp, char *filename)
   char *rest;
   // Rahik started driving
   char *sp = *esp;
-  printf("new SP: \t%p\n", sp);
+  // printf("new SP: \t%p\n", sp);
   uint32_t num_args = 0;
   char *argv[128];
 
-  for (token = strtok_r (filename, " ", &rest); token != NULL;
+  sp -= (strlen (filename) + 1);
+  argv[num_args] = sp;
+  num_args++;
+  memcpy (sp, filename, strlen (filename) + 1);
+  printf("filenamed added to stack: %s\n", filename);
+
+  for (token = strtok_r (args, " ", &rest); token != NULL;
        token = strtok_r (NULL, " ", &rest))
     {
       sp -= (strlen (token) + 1);
-      printf("SP loop: \t%p\n", sp);
+      // printf("SP loop: \t%p\n", sp);
       argv[num_args] = sp;
       num_args++;
       memcpy (sp, token, strlen (token) + 1);
+      printf("in loop added: %s\n", sp);
     }
 
   sp -= (((unsigned) sp) % 4);
-  printf("SP pad: \t%p\n", sp);
+  // printf("SP pad: \t%p\n", sp);
   sp -= sizeof (char *);
-  printf("SP null(1): \t%p\n", sp);
+  // printf("SP null(1): \t%p\n", sp);
 
   for (int i = num_args - 1; i >= 0; i--)
     {
       sp -= sizeof (char *);
-      printf("SP ptrs: \t%p\n", sp);
+      // printf("SP ptrs: \t%p\n", sp);
       *((char **) sp) = argv[i];
+      printf("in add pts loop added: %p\n", *((char **) sp));
     }
-
   sp -= sizeof (char *);
-  printf("SP argv: \t%p\n", sp);
   *((char **) sp) = sp + sizeof (char *);
+  printf("setting arg v pointer: %p\n", *((char **) sp));
   sp -= sizeof (uint32_t);
   *((uint32_t *) sp) = num_args;
-  printf("SP argc: \t%p\n", sp);
+  printf("setting arg c: %d\n", *((uint32_t *) sp));
+  // printf("SP argc: \t%p\n", sp);
   sp -= sizeof (uint32_t);
-  printf("SP return: \t%p\n", sp);
+  // printf("SP return: \t%p\n", sp);
   // Rahik stopped driving
   *((uint32_t *) sp) = 0;
-  printf ("done with setup stack\n");
+  // printf ("done with setup stack\n");
   // Jake stopped driving
   return success;
 }
+// Milan stopped driving
+
 
 /* Adds a mapping from user virtual address UPAGE to kernel
    virtual address KPAGE to the page table.
