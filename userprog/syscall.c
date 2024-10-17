@@ -78,11 +78,12 @@ void syscall_handler (struct intr_frame *f)
 
         // date test
       case SYS_EXEC:
+        if(!get_user_pointer(sp))
+            return syscall_error (f);
         char *cmd_line = (char *) *(sp++);
-        if (!get_user_pointer (cmd_line) || !validate_user_address (cmd_line) ||
+        if (!get_user_pointer(cmd_line) || !validate_user_address (cmd_line) ||
             pagedir_get_page (thread_current ()->pagedir, cmd_line) == NULL)
           return syscall_error (f);
-
         char *cmd_copy = malloc (strlen (cmd_line) + 1);
         if (cmd_copy == NULL)
           syscall_error (f);
@@ -135,7 +136,7 @@ void syscall_handler (struct intr_frame *f)
 
       case SYS_REMOVE: /* Delete a file. */
         file = (char *) *(sp++);
-        if (file == NULL || !is_user_vaddr (file) ||
+        if (file == NULL || !get_user_32bit (file) ||
             pagedir_get_page (thread_current ()->pagedir, file) == NULL)
           syscall_error (f);
 
@@ -144,7 +145,7 @@ void syscall_handler (struct intr_frame *f)
 
       case SYS_OPEN: /* Open a file. */
         file = (char *) *(sp++);
-        if (file == NULL || !is_user_vaddr (file) ||
+        if (file == NULL || !get_user_32bit(file) ||
             pagedir_get_page (thread_current ()->pagedir, file) == NULL)
           return syscall_error (f);
 
@@ -211,8 +212,7 @@ void syscall_handler (struct intr_frame *f)
         fd = *(sp++);
         buffer = (char *) *(sp++);
         size = (unsigned) *(sp++);
-        if (!validate_user_address (buffer) ||
-            !is_user_vaddr (buffer + size - 1) ||
+        if (!get_user_32bit(buffer) ||
             pagedir_get_page (thread_current ()->pagedir, buffer) == NULL)
           return syscall_error (f);
 
@@ -314,7 +314,7 @@ bool get_user_32bit (const void *src)
   /* Check that all 4 bytes of the source address are in valid user memory */
   for (int i = 0; i < sizeof (uint32_t); i++)
     {
-      if (!validate_user_address ((uint8_t *) src + 1))
+      if (!validate_user_address ((uint8_t *) src + i))
         {
           return false;
         }
@@ -325,6 +325,7 @@ bool get_user_32bit (const void *src)
 bool get_user_pointer (const void *src)
 {
   /* Check that all 4 bytes of the source address are in valid user memory */
+  int counter = 0;
   for (const char *ptr = src;; ptr++)
     {
       /* Check if the current byte is a valid user address. */
