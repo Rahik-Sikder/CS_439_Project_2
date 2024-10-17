@@ -108,6 +108,7 @@ struct thread
   struct semaphore sema_cure; /* parent cures child from being a zombie */
   struct semaphore sema_load;
   struct list file_descriptors;
+  struct file *executable_file;
   int curr_fd;
 
   /* Shared between thread.c and synch.c. */
