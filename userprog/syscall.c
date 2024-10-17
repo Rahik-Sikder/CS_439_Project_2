@@ -30,6 +30,15 @@ int syscall_error (struct intr_frame *f)
   return -1;
 }
 
+int syscall_fail_return (struct intr_frame *f)
+{
+  int status = -1;
+  struct thread *cur = thread_current (); // Get current thread/process
+  cur->exit_status = status;              // Set exit status
+  f->eax = status;
+  return -1;
+}
+
 void syscall_handler (struct intr_frame *f)
 {
 
@@ -61,19 +70,24 @@ void syscall_handler (struct intr_frame *f)
         if (status < -1)
           status = -1;
         cur->exit_status = status; // Set exit status
-        
+
         thread_exit ();
         break;
 
       case SYS_EXEC:
         char *cmd_line = (char *) *(sp++);
-        if (!validate_user_address (cmd_line))
+        if (!validate_user_address (cmd_line) ||
+            pagedir_get_page (thread_current ()->pagedir, cmd_line) == NULL)
           return syscall_error (f);
 
+        char *cmd_copy = malloc (strlen (cmd_line) + 1);
+        if (cmd_copy == NULL || pagedir_get_page (thread_current ()->pagedir, cmd_copy) == NULL)
+          syscall_error (f);
+        strlcpy (cmd_copy, cmd_line, strlen (cmd_line) + 1);
         // Guide says there's a possible error here with this code apparently
         // returning b4 exec finishes loading the child -> don't really see
         // how it could given the current implementation but who knows
-        tid_t result = process_execute (cmd_line);
+        tid_t result = process_execute (cmd_copy);
         f->eax = result;
         break;
 
@@ -85,34 +99,41 @@ void syscall_handler (struct intr_frame *f)
         break;
 
       case SYS_CREATE: /* Create a file. */
-       // Get the file name and initial size from the stack
+                       // Get the file name and initial size from the stack
         char *file = (char *) *(sp++);
         unsigned initial_size = *(unsigned *) (sp++);
 
         // Check if the file pointer is NULL or an invalid user address
-        if (!get_user_32bit(file) || file == NULL) {
-            f->eax = 0; // Indicate failure
-            cur->exit_status = -1;              // Set exit status
-            
+        if (!get_user_32bit (file) || file == NULL)
+          {
+            f->eax = 0;            // Indicate failure
+            cur->exit_status = -1; // Set exit status
+
             thread_exit ();
-        } else {
+          }
+        else
+          {
             // If the file name is an empty string, it should also fail
-            if (strlen(file) == 0) {
-                f->eax = 0; // File name is empty, indicate failure
-                cur->exit_status = -1;              // Set exit status
-                
+            if (strlen (file) == 0)
+              {
+                f->eax = 0;            // File name is empty, indicate failure
+                cur->exit_status = -1; // Set exit status
+
                 thread_exit ();
-            } else {
+              }
+            else
+              {
                 // Attempt to create the file
-                bool success = filesys_create(file, initial_size);
+                bool success = filesys_create (file, initial_size);
                 f->eax = success;
-            }
-        }
+              }
+          }
         break;
 
       case SYS_REMOVE: /* Delete a file. */
         file = (char *) *(sp++);
-        if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
+        if (file == NULL || !is_user_vaddr (file) ||
+            pagedir_get_page (thread_current ()->pagedir, file) == NULL)
           syscall_error (f);
 
         f->eax = filesys_remove (file);
@@ -120,26 +141,17 @@ void syscall_handler (struct intr_frame *f)
 
       case SYS_OPEN: /* Open a file. */
         file = (char *) *(sp++);
-        if (file == NULL || !is_user_vaddr (file) ){
+        if (file == NULL || !is_user_vaddr (file) ||
+            pagedir_get_page (thread_current ()->pagedir, file) == NULL)
           return syscall_error (f);
-        }
-        else if (strlen (file) == 0){
-          int return_val = -1;
-          struct thread *cur = thread_current (); // Get current thread/process
-          cur->exit_status = return_val;              // Set exit status
-          f->eax = (int) -1;
-          return -1;
-        }
-          
+
+        if (strlen (file) == 0)
+          return syscall_fail_return (f);
 
         struct file *opened_file = filesys_open (file);
-        if(opened_file==NULL){
-          int return_val = -1;
-          struct thread *cur = thread_current (); // Get current thread/process
-          cur->exit_status = return_val;              // Set exit status
-          f->eax = (int) -1;
-          return -1;
-        }
+
+        if (opened_file == NULL)
+          return syscall_fail_return (f);
 
         struct file_descriptor *fd_entry =
             malloc (sizeof (struct file_descriptor));
@@ -160,8 +172,8 @@ void syscall_handler (struct intr_frame *f)
         found_file = get_file_from_fd (fd);
 
         if (found_file == NULL)
-            return syscall_error (f);
-            
+          return syscall_error (f);
+
         f->eax = file_length (found_file);
         break;
 
@@ -171,8 +183,8 @@ void syscall_handler (struct intr_frame *f)
         size = (unsigned) *(sp++);
         if (!validate_user_address (buffer) ||
             !is_user_vaddr (buffer + size - 1))
-            return syscall_error (f);
-        
+          return syscall_error (f);
+
         if (fd == 0)
           {
             for (unsigned i = 0; i < size; i++)
@@ -186,10 +198,7 @@ void syscall_handler (struct intr_frame *f)
             found_file = get_file_from_fd (fd);
 
             if (found_file == NULL)
-              {
-                syscall_error (f);
-                return;
-              }
+              return syscall_fail_return (f);
 
             f->eax = file_read (found_file, buffer, size);
           }
@@ -200,7 +209,8 @@ void syscall_handler (struct intr_frame *f)
         buffer = (char *) *(sp++);
         size = (unsigned) *(sp++);
         if (!validate_user_address (buffer) ||
-            !is_user_vaddr (buffer + size - 1))
+            !is_user_vaddr (buffer + size - 1) ||
+            pagedir_get_page (thread_current ()->pagedir, buffer) == NULL)
           return syscall_error (f);
 
         if (fd == 1)
@@ -213,10 +223,7 @@ void syscall_handler (struct intr_frame *f)
             struct file *file =
                 get_file_from_fd (fd); // Retrieve the file using fd
             if (file == NULL)
-              {
-                syscall_error (f);
-                return;
-              }
+              return syscall_fail_return (f);
 
             int bytes_written = file_write (file, buffer, size);
             f->eax = bytes_written;
@@ -230,7 +237,7 @@ void syscall_handler (struct intr_frame *f)
         found_file = get_file_from_fd (fd);
 
         if (file == NULL)
-          return syscall_error (f);
+          return syscall_fail_return (f);
 
         file_seek (file, position);
         f->eax = 0;
@@ -240,7 +247,7 @@ void syscall_handler (struct intr_frame *f)
         fd = *(sp++);
         found_file = get_file_from_fd (fd);
         if (file == NULL)
-          return syscall_error (f);
+          return syscall_fail_return (f);
 
         f->eax = file_tell (file);
         break;
@@ -264,9 +271,8 @@ void syscall_handler (struct intr_frame *f)
               }
           }
         break;
-
       default:
-        printf ("system %d\n", syscall_number);
+        syscall_fail_return (fd);
     }
   return;
 }
