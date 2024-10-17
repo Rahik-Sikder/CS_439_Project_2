@@ -458,8 +458,9 @@ static bool setup_stack (void **esp, char *filename)
     }
   char *token;
   char *rest;
-  char *sp = PHYS_BASE;
-
+  // Rahik started driving
+  char *sp = *esp;
+  printf("new SP: \t%p\n", sp);
   uint32_t num_args = 0;
   char *argv[128];
 
@@ -467,27 +468,33 @@ static bool setup_stack (void **esp, char *filename)
        token = strtok_r (NULL, " ", &rest))
     {
       sp -= (strlen (token) + 1);
+      printf("SP loop: \t%p\n", sp);
       argv[num_args] = sp;
       num_args++;
       memcpy (sp, token, strlen (token) + 1);
     }
 
-  sp -= (((int) sp) % 4);
+  sp -= (((unsigned) sp) % 4);
+  printf("SP pad: \t%p\n", sp);
   sp -= sizeof (char *);
+  printf("SP null(1): \t%p\n", sp);
 
   for (int i = num_args - 1; i >= 0; i--)
     {
       sp -= sizeof (char *);
+      printf("SP ptrs: \t%p\n", sp);
       *((char **) sp) = argv[i];
     }
 
   sp -= sizeof (char *);
+  printf("SP argv: \t%p\n", sp);
   *((char **) sp) = sp + sizeof (char *);
-
   sp -= sizeof (uint32_t);
   *((uint32_t *) sp) = num_args;
-
+  printf("SP argc: \t%p\n", sp);
   sp -= sizeof (uint32_t);
+  printf("SP return: \t%p\n", sp);
+  // Rahik stopped driving
   *((uint32_t *) sp) = 0;
   printf ("done with setup stack\n");
   // Jake stopped driving
