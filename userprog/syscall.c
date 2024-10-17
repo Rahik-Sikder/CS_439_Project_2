@@ -81,7 +81,7 @@ void syscall_handler (struct intr_frame *f)
           return syscall_error (f);
 
         char *cmd_copy = malloc (strlen (cmd_line) + 1);
-        if (cmd_copy == NULL || pagedir_get_page (thread_current ()->pagedir, cmd_copy) == NULL)
+        if (cmd_copy == NULL)
           syscall_error (f);
         strlcpy (cmd_copy, cmd_line, strlen (cmd_line) + 1);
         // Guide says there's a possible error here with this code apparently
