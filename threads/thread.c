@@ -516,6 +516,7 @@ static void init_thread (struct thread *t, const char *name, int priority)
   sema_init (&t->sema_sleep, 0);
   sema_init (&t->sema_wait, 0);
   sema_init (&t->sema_cure, 0);
+  sema_init (&t->sema_load, 0);
 }
 
 /* Allocates a SIZE-byte frame at the top of thread T's stack and

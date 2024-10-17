@@ -60,6 +60,7 @@ void syscall_handler (struct intr_frame *f)
   struct file *found_file;
   unsigned size;
   char *buffer;
+  struct list_elem *e;
 
   switch (syscall_number)
     {
@@ -91,6 +92,22 @@ void syscall_handler (struct intr_frame *f)
         // returning b4 exec finishes loading the child -> don't really see
         // how it could given the current implementation but who knows
         tid_t result = process_execute (cmd_copy);
+        struct thread *t;
+        for (e = list_begin (&cur->children);
+             e != list_end (&cur->children); e = list_next (e))
+          {
+             t = list_entry (e, struct thread, childelem);
+
+            if (t->tid == result)
+              {
+                sema_down(&t->sema_load);
+                break;
+              }
+          }
+        if (t->exit_status == -1) {
+            f->eax = -1;  // Loading failed, return error
+            return;
+        }
         f->eax = result;
         break;
 
@@ -187,7 +204,12 @@ void syscall_handler (struct intr_frame *f)
         if (!validate_user_address (buffer) ||
             !is_user_vaddr (buffer + size - 1))
           return syscall_error (f);
-
+        
+        for (unsigned i = 0; i < size; i += PGSIZE) {
+          if (!pagedir_get_page(thread_current()->pagedir, buffer + i)) {
+            return syscall_error(f);
+          }
+        }
         if (fd == 0)
           {
             for (unsigned i = 0; i < size; i++)
@@ -203,7 +225,12 @@ void syscall_handler (struct intr_frame *f)
             if (found_file == NULL)
               return syscall_fail_return (f);
 
-            f->eax = file_read (found_file, buffer, size);
+            int read_bytes = file_read (found_file, buffer, size);
+
+            if (read_bytes < 0) {
+              return syscall_fail_return (f);
+            }
+            f->eax = read_bytes;
           }
         break;
 
@@ -216,6 +243,11 @@ void syscall_handler (struct intr_frame *f)
             pagedir_get_page (thread_current ()->pagedir, buffer) == NULL)
           return syscall_error (f);
 
+        for (unsigned i = 0; i < size; i += PGSIZE) {
+          if (!pagedir_get_page(thread_current()->pagedir, buffer + i)) {
+            return syscall_error(f);
+          }
+        }
         if (fd == 1)
           {
             putbuf (buffer, size);
@@ -229,6 +261,9 @@ void syscall_handler (struct intr_frame *f)
               return syscall_fail_return (f);
 
             int bytes_written = file_write (file, buffer, size);
+            if (bytes_written < 0) {
+              return syscall_fail_return (f);
+            }
             f->eax = bytes_written;
           }
         break;
@@ -257,7 +292,7 @@ void syscall_handler (struct intr_frame *f)
 
       case SYS_CLOSE:
         fd = *(sp++);
-        struct list_elem *e;
+        
 
         for (e = list_begin (&cur->file_descriptors);
              e != list_end (&cur->file_descriptors); e = list_next (e))
