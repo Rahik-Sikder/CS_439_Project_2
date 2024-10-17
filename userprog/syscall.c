@@ -74,6 +74,12 @@ void syscall_handler (struct intr_frame *f)
           status = -1;
         cur->exit_status = status; // Set exit status
 
+        if (thread_current()->executable_file != NULL) {
+            file_allow_write(thread_current()->executable_file);  // Allow writes to the file again
+            file_close(thread_current()->executable_file);  // Close the file
+            thread_current()->executable_file = NULL;
+        }
+
         thread_exit ();
         break;
 
@@ -85,6 +91,7 @@ void syscall_handler (struct intr_frame *f)
         if (!get_user_pointer(cmd_line) || !validate_user_address (cmd_line) ||
             pagedir_get_page (thread_current ()->pagedir, cmd_line) == NULL)
           return syscall_error (f);
+
         char *cmd_copy = malloc (strlen (cmd_line) + 1);
         if (cmd_copy == NULL)
           syscall_error (f);
