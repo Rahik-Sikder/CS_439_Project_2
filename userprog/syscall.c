@@ -74,12 +74,6 @@ void syscall_handler (struct intr_frame *f)
           status = -1;
         cur->exit_status = status; // Set exit status
 
-        if (thread_current()->executable_file != NULL) {
-            file_allow_write(thread_current()->executable_file);  // Allow writes to the file again
-            file_close(thread_current()->executable_file);  // Close the file
-            thread_current()->executable_file = NULL;
-        }
-
         thread_exit ();
         break;
 
