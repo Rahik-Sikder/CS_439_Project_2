@@ -5,7 +5,8 @@
         "thread": "c",
         "typeindex": "c",
         "typeinfo": "c",
-        "off_t.h": "c"
+        "off_t.h": "c",
+        "palloc.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

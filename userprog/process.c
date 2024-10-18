@@ -43,14 +43,6 @@ tid_t process_execute (const char *file_name)
 
   token = strtok_r (file_name, " ", &rest);
 
-  struct file *executable = filesys_open(token);
-  
-  if(executable!=NULL){
-    file_deny_write(executable);
-
-    thread_current()->executable_file = executable;
-  } 
-  
   /* Create a new thread to execute FILE_NAME. */
   tid = thread_create (token, PRI_DEFAULT, start_process, fn_copy);
   if (tid == TID_ERROR)
@@ -75,14 +67,28 @@ static void start_process (void *file_name_)
   success = load (file_name, &if_.eip, &if_.esp);
 
   /* If load failed, quit. */
+
+  if (!success)
+    {
+      thread_current ()->exit_status = -1;
+      sema_up (&thread_current ()->sema_load);
+      thread_exit ();
+    }
+  else
+    {
+      struct file *executable = filesys_open (file_name);
+
+      if (executable != NULL)
+        {
+          file_deny_write (executable);
+
+          thread_current ()->executable_file = executable;
+        }
+    }
+
   palloc_free_page (file_name);
-  if (!success) {
-      thread_current()->exit_status = -1;
-      sema_up(&thread_current()->sema_load);  
-      thread_exit();
-  }
-  
-  sema_up(&thread_current()->sema_load);
+
+  sema_up (&thread_current ()->sema_load);
   /* Start the user process by simulating a return from an
      interrupt, implemented by intr_exit (in
      threads/intr-stubs.S).  Because intr_exit takes all of its
@@ -126,14 +132,13 @@ int process_wait (tid_t child_tid UNUSED)
 
   // wait on a child's semaphore
   // printf ("thread %d waiting on child %d\n", cur_thread->tid,
-          // child_thread->tid);
+  // child_thread->tid);
   sema_down (&child_thread->sema_wait);
 
   // cure zombie
   // printf ("thread %d curing child %d\n", cur_thread->tid, child_thread->tid);
   list_remove (&child_thread->childelem);
   sema_up (&child_thread->sema_cure);
-
 
   return child_thread->exit_status;
 }
@@ -144,6 +149,12 @@ void process_exit (void)
   struct thread *cur = thread_current ();
   uint32_t *pd;
 
+  if (thread_current ()->executable_file != NULL)
+    {
+      file_allow_write (thread_current ()->executable_file); // Allow writes to the file again
+      file_close (thread_current ()->executable_file); // Close the file
+      thread_current ()->executable_file = NULL;
+    }
   /* Destroy the current process's page directory and switch back
      to the kernel-only page directory. */
   pd = cur->pagedir;
