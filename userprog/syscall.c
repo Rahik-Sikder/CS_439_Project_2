@@ -13,12 +13,12 @@ bool validate_user_address (const void *addr);
 
 static struct file *get_file_from_fd (int fd);
 bool get_user_32bit (const void *src);
-bool get_user_pointer(const void *addr);
+bool get_user_pointer (const void *addr);
+struct lock filesys_lock;
 
-
-    void
-    syscall_init (void)
+void syscall_init (void)
 {
+  lock_init (&filesys_lock);
   intr_register_int (0x30, 3, INTR_ON, syscall_handler, "syscall");
 }
 
@@ -73,16 +73,16 @@ void syscall_handler (struct intr_frame *f)
         if (status < -1)
           status = -1;
         cur->exit_status = status; // Set exit status
-
+      
         thread_exit ();
         break;
 
         // date test
       case SYS_EXEC:
-        if(!get_user_pointer(sp))
-            return syscall_error (f);
+        if (!get_user_pointer (sp))
+          return syscall_error (f);
         char *cmd_line = (char *) *(sp++);
-        if (!get_user_pointer(cmd_line) || !validate_user_address (cmd_line) ||
+        if (!get_user_pointer (cmd_line) || !validate_user_address (cmd_line) ||
             pagedir_get_page (thread_current ()->pagedir, cmd_line) == NULL)
           return syscall_error (f);
 
@@ -95,21 +95,22 @@ void syscall_handler (struct intr_frame *f)
         // how it could given the current implementation but who knows
         tid_t result = process_execute (cmd_copy);
         struct thread *t;
-        for (e = list_begin (&cur->children);
-             e != list_end (&cur->children); e = list_next (e))
+        for (e = list_begin (&cur->children); e != list_end (&cur->children);
+             e = list_next (e))
           {
-             t = list_entry (e, struct thread, childelem);
+            t = list_entry (e, struct thread, childelem);
 
             if (t->tid == result)
               {
-                sema_down(&t->sema_load);
+                sema_down (&t->sema_load);
                 break;
               }
           }
-        if (t->exit_status == -1) {
-            f->eax = -1;  // Loading failed, return error
+        if (t->exit_status == -1)
+          {
+            f->eax = -1; // Loading failed, return error
             return;
-        }
+          }
         f->eax = result;
         break;
 
@@ -146,8 +147,10 @@ void syscall_handler (struct intr_frame *f)
             else
               {
                 // Attempt to create the file
+                lock_acquire (&filesys_lock);
                 bool success = filesys_create (file, initial_size);
                 f->eax = success;
+                lock_release (&filesys_lock);
               }
           }
         break;
@@ -163,30 +166,37 @@ void syscall_handler (struct intr_frame *f)
 
       case SYS_OPEN: /* Open a file. */
         file = (char *) *(sp++);
-        if (file == NULL || !get_user_32bit(file) ||
+        if (file == NULL || !get_user_32bit (file) ||
             pagedir_get_page (thread_current ()->pagedir, file) == NULL)
           return syscall_error (f);
 
         if (strlen (file) == 0)
           return syscall_fail_return (f);
 
+        lock_acquire (&filesys_lock);
         struct file *opened_file = filesys_open (file);
 
         if (opened_file == NULL)
-          return syscall_fail_return (f);
+          {
+            lock_release (&filesys_lock);
+            return syscall_fail_return (f);
+          }
 
         struct file_descriptor *fd_entry =
             malloc (sizeof (struct file_descriptor));
         if (fd_entry == NULL)
           {
             file_close (opened_file);
+            lock_release (&filesys_lock);
             return syscall_error (f);
           }
+        lock_release (&filesys_lock);
         fd_entry->fd = cur->curr_fd;
         cur->curr_fd++;
         fd_entry->open_file = opened_file;
         list_push_back (&cur->file_descriptors, &fd_entry->file_elem);
         f->eax = fd_entry->fd;
+
         break;
 
       case SYS_FILESIZE: /* Obtain a file's size. */
@@ -206,12 +216,15 @@ void syscall_handler (struct intr_frame *f)
         if (!validate_user_address (buffer) ||
             !is_user_vaddr (buffer + size - 1))
           return syscall_error (f);
-        
-        for (unsigned i = 0; i < size; i += PGSIZE) {
-          if (!pagedir_get_page(thread_current()->pagedir, buffer + i)) {
-            return syscall_error(f);
+
+        for (unsigned i = 0; i < size; i += PGSIZE)
+          {
+            if (!pagedir_get_page (thread_current ()->pagedir, buffer + i))
+              {
+                return syscall_error (f);
+              }
           }
-        }
+        lock_acquire (&filesys_lock);
         if (fd == 0)
           {
             for (unsigned i = 0; i < size; i++)
@@ -225,13 +238,18 @@ void syscall_handler (struct intr_frame *f)
             found_file = get_file_from_fd (fd);
 
             if (found_file == NULL)
-              return syscall_fail_return (f);
+              {
+                lock_release (&filesys_lock);
+                return syscall_fail_return (f);
+              }
 
             int read_bytes = file_read (found_file, buffer, size);
+            lock_release (&filesys_lock);
 
-            if (read_bytes < 0) {
-              return syscall_fail_return (f);
-            }
+            if (read_bytes < 0)
+              {
+                return syscall_fail_return (f);
+              }
             f->eax = read_bytes;
           }
         break;
@@ -240,15 +258,18 @@ void syscall_handler (struct intr_frame *f)
         fd = *(sp++);
         buffer = (char *) *(sp++);
         size = (unsigned) *(sp++);
-        if (!get_user_32bit(buffer) ||
+        if (!get_user_32bit (buffer) ||
             pagedir_get_page (thread_current ()->pagedir, buffer) == NULL)
           return syscall_error (f);
 
-        for (unsigned i = 0; i < size; i += PGSIZE) {
-          if (!pagedir_get_page(thread_current()->pagedir, buffer + i)) {
-            return syscall_error(f);
+        for (unsigned i = 0; i < size; i += PGSIZE)
+          {
+            if (!pagedir_get_page (thread_current ()->pagedir, buffer + i))
+              {
+                return syscall_error (f);
+              }
           }
-        }
+        lock_acquire (&filesys_lock);
         if (fd == 1)
           {
             putbuf (buffer, size);
@@ -259,42 +280,58 @@ void syscall_handler (struct intr_frame *f)
             struct file *file =
                 get_file_from_fd (fd); // Retrieve the file using fd
             if (file == NULL)
-              return syscall_fail_return (f);
+              {
+                lock_release (&filesys_lock);
+                return syscall_fail_return (f);
+              }
 
             int bytes_written = file_write (file, buffer, size);
-            if (bytes_written < 0) {
-              return syscall_fail_return (f);
-            }
+
+            if (bytes_written < 0)
+              {
+                lock_release (&filesys_lock);
+                return syscall_fail_return (f);
+              }
             f->eax = bytes_written;
           }
+        lock_release (&filesys_lock);
         break;
 
       case SYS_SEEK: /* Change position in a file. */
         fd = *(sp++);
         unsigned position = (unsigned) *(sp++);
 
+        lock_acquire (&filesys_lock);
         found_file = get_file_from_fd (fd);
 
         if (file == NULL)
-          return syscall_fail_return (f);
+          {
+            lock_release (&filesys_lock);
+            return syscall_fail_return (f);
+          }
 
         file_seek (file, position);
+        lock_release (&filesys_lock);
         f->eax = 0;
         break;
 
       case SYS_TELL: /* Report current position in a file. */
         fd = *(sp++);
+        lock_acquire (&filesys_lock);
         found_file = get_file_from_fd (fd);
         if (file == NULL)
-          return syscall_fail_return (f);
-
+          {
+            lock_release (&filesys_lock);
+            return syscall_fail_return (f);
+          }
+        lock_release (&filesys_lock);
         f->eax = file_tell (file);
         break;
 
       case SYS_CLOSE:
         fd = *(sp++);
-        
 
+        lock_acquire (&filesys_lock);
         for (e = list_begin (&cur->file_descriptors);
              e != list_end (&cur->file_descriptors); e = list_next (e))
           {
@@ -306,9 +343,11 @@ void syscall_handler (struct intr_frame *f)
                 file_close (fd_entry->open_file); // Close the file
                 list_remove (e); // Remove the entry from the fd_table
                 free (fd_entry); // Free the memory for the file descriptor
+                lock_release (&filesys_lock);
                 return;
               }
           }
+        lock_release (&filesys_lock);
         break;
       default:
         syscall_fail_return (fd);
@@ -355,7 +394,7 @@ bool get_user_32bit (const void *src)
           return false;
         }
     }
-    return true;
+  return true;
 }
 
 bool get_user_pointer (const void *src)
@@ -376,5 +415,5 @@ bool get_user_pointer (const void *src)
           break;
         }
     }
-    return true;
+  return true;
 }
