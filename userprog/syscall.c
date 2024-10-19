@@ -73,7 +73,9 @@ void syscall_handler (struct intr_frame *f)
         if (status < -1)
           status = -1;
         cur->exit_status = status; // Set exit status
-
+        if(cur->executable_file!=NULL){
+          file_allow_write(cur->executable_file);
+        }
         thread_exit ();
         break;
 
@@ -277,8 +279,10 @@ void syscall_handler (struct intr_frame *f)
           }
         if (fd == 1)
           {
+            lock_acquire (&filesys_lock);
             putbuf (buffer, size);
             f->eax = size;
+            lock_release(&filesys_lock);
           }
         else
           {

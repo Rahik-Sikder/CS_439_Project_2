@@ -140,9 +140,9 @@ void process_exit (void)
   struct thread *cur = thread_current ();
   uint32_t *pd;
 
-    // if(thread_current()->executable_file!=NULL){
-    //   file_allow_write(thread_current()->executable_file);
-    // }
+    if(thread_current()->executable_file){
+      file_allow_write(thread_current()->executable_file);
+    }
     
   while(!list_empty(&cur->file_descriptors)){
     struct list_elem *e = list_pop_front (&cur->file_descriptors);
@@ -299,10 +299,7 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
       printf ("load: %s: error loading executable\n", token);
       goto done;
     }
-  else{
-    file_deny_write (file);
-    thread_current ()->executable_file = file;
-  }
+
 
   /* Read program headers. */
   file_ofs = ehdr.e_phoff;
@@ -372,6 +369,9 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
   *eip = (void (*) (void)) ehdr.e_entry;
 
   success = true;
+  file_deny_write (file);
+  thread_current ()->executable_file = file;
+
 done:
   /* We arrive here whether the load is successful or not. */
   return success;
