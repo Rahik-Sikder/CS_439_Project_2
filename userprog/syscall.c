@@ -73,7 +73,7 @@ void syscall_handler (struct intr_frame *f)
         if (status < -1)
           status = -1;
         cur->exit_status = status; // Set exit status
-      
+
         thread_exit ();
         break;
 
@@ -149,8 +149,9 @@ void syscall_handler (struct intr_frame *f)
                 // Attempt to create the file
                 lock_acquire (&filesys_lock);
                 bool success = filesys_create (file, initial_size);
-                f->eax = success;
                 lock_release (&filesys_lock);
+
+                f->eax = success;
               }
           }
         break;
@@ -180,12 +181,12 @@ void syscall_handler (struct intr_frame *f)
         if (strlen (file) == 0)
           return syscall_fail_return (f);
 
-        lock_acquire (&filesys_lock);
+        // lock_acquire (&filesys_lock);
         struct file *opened_file = filesys_open (file);
+        // lock_release (&filesys_lock);
 
         if (opened_file == NULL)
           {
-            lock_release (&filesys_lock);
             return syscall_fail_return (f);
           }
 
@@ -194,10 +195,8 @@ void syscall_handler (struct intr_frame *f)
         if (fd_entry == NULL)
           {
             file_close (opened_file);
-            lock_release (&filesys_lock);
             return syscall_error (f);
           }
-        lock_release (&filesys_lock);
         fd_entry->fd = cur->curr_fd;
         cur->curr_fd++;
         fd_entry->open_file = opened_file;
@@ -231,7 +230,6 @@ void syscall_handler (struct intr_frame *f)
                 return syscall_error (f);
               }
           }
-        lock_acquire (&filesys_lock);
         if (fd == 0)
           {
             for (unsigned i = 0; i < size; i++)
@@ -246,10 +244,10 @@ void syscall_handler (struct intr_frame *f)
 
             if (found_file == NULL)
               {
-                lock_release (&filesys_lock);
                 return syscall_fail_return (f);
               }
 
+            lock_acquire (&filesys_lock);
             int read_bytes = file_read (found_file, buffer, size);
             lock_release (&filesys_lock);
 
@@ -276,7 +274,6 @@ void syscall_handler (struct intr_frame *f)
                 return syscall_error (f);
               }
           }
-        lock_acquire (&filesys_lock);
         if (fd == 1)
           {
             putbuf (buffer, size);
@@ -287,58 +284,44 @@ void syscall_handler (struct intr_frame *f)
             struct file *file =
                 get_file_from_fd (fd); // Retrieve the file using fd
             if (file == NULL)
-              {
-                lock_release (&filesys_lock);
-                return syscall_fail_return (f);
-              }
+              return syscall_fail_return (f);
 
+            lock_acquire (&filesys_lock);
             int bytes_written = file_write (file, buffer, size);
+            lock_release (&filesys_lock);
 
             if (bytes_written < 0)
-              {
-                lock_release (&filesys_lock);
-                return syscall_fail_return (f);
-              }
+              return syscall_fail_return (f);
+
             f->eax = bytes_written;
           }
-        lock_release (&filesys_lock);
         break;
 
       case SYS_SEEK: /* Change position in a file. */
         fd = *(sp++);
         unsigned position = (unsigned) *(sp++);
 
-        lock_acquire (&filesys_lock);
         found_file = get_file_from_fd (fd);
 
         if (file == NULL)
-          {
-            lock_release (&filesys_lock);
-            return syscall_fail_return (f);
-          }
+          return syscall_fail_return (f);
 
         file_seek (file, position);
-        lock_release (&filesys_lock);
         f->eax = 0;
         break;
 
       case SYS_TELL: /* Report current position in a file. */
         fd = *(sp++);
-        lock_acquire (&filesys_lock);
         found_file = get_file_from_fd (fd);
         if (file == NULL)
-          {
-            lock_release (&filesys_lock);
-            return syscall_fail_return (f);
-          }
-        lock_release (&filesys_lock);
+          return syscall_fail_return (f);
+
         f->eax = file_tell (file);
         break;
 
       case SYS_CLOSE:
         fd = *(sp++);
 
-        lock_acquire (&filesys_lock);
         for (e = list_begin (&cur->file_descriptors);
              e != list_end (&cur->file_descriptors); e = list_next (e))
           {
@@ -347,6 +330,7 @@ void syscall_handler (struct intr_frame *f)
 
             if (fd_entry->fd == fd)
               {
+                lock_acquire (&filesys_lock);
                 file_close (fd_entry->open_file); // Close the file
                 list_remove (e); // Remove the entry from the fd_table
                 free (fd_entry); // Free the memory for the file descriptor
@@ -354,7 +338,6 @@ void syscall_handler (struct intr_frame *f)
                 return;
               }
           }
-        lock_release (&filesys_lock);
         break;
       default:
         syscall_fail_return (fd);
