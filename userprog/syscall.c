@@ -181,9 +181,9 @@ void syscall_handler (struct intr_frame *f)
         if (strlen (file) == 0)
           return syscall_fail_return (f);
 
-        // lock_acquire (&filesys_lock);
+        lock_acquire (&filesys_lock);
         struct file *opened_file = filesys_open (file);
-        // lock_release (&filesys_lock);
+        lock_release (&filesys_lock);
 
         if (opened_file == NULL)
           {
@@ -247,14 +247,15 @@ void syscall_handler (struct intr_frame *f)
                 return syscall_fail_return (f);
               }
 
-            lock_acquire (&filesys_lock);
+            
             int read_bytes = file_read (found_file, buffer, size);
-            lock_release (&filesys_lock);
+            
 
             if (read_bytes < 0)
               {
                 return syscall_fail_return (f);
               }
+            
             f->eax = read_bytes;
           }
         break;
@@ -286,12 +287,13 @@ void syscall_handler (struct intr_frame *f)
             if (file == NULL)
               return syscall_fail_return (f);
 
-            lock_acquire (&filesys_lock);
+            
             int bytes_written = file_write (file, buffer, size);
-            lock_release (&filesys_lock);
+            
 
-            if (bytes_written < 0)
+            if (bytes_written < 0){
               return syscall_fail_return (f);
+            }
 
             f->eax = bytes_written;
           }
@@ -303,20 +305,20 @@ void syscall_handler (struct intr_frame *f)
 
         found_file = get_file_from_fd (fd);
 
-        if (file == NULL)
+        if (found_file == NULL)
           return syscall_fail_return (f);
 
-        file_seek (file, position);
+        file_seek (found_file, position);
         f->eax = 0;
         break;
 
       case SYS_TELL: /* Report current position in a file. */
         fd = *(sp++);
         found_file = get_file_from_fd (fd);
-        if (file == NULL)
+        if (found_file == NULL)
           return syscall_fail_return (f);
 
-        f->eax = file_tell (file);
+        f->eax = file_tell (found_file);
         break;
 
       case SYS_CLOSE:
@@ -330,11 +332,9 @@ void syscall_handler (struct intr_frame *f)
 
             if (fd_entry->fd == fd)
               {
-                lock_acquire (&filesys_lock);
                 file_close (fd_entry->open_file); // Close the file
                 list_remove (e); // Remove the entry from the fd_table
                 free (fd_entry); // Free the memory for the file descriptor
-                lock_release (&filesys_lock);
                 return;
               }
           }

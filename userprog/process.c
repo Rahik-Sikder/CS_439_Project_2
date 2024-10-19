@@ -166,6 +166,9 @@ void process_exit (void)
       pagedir_activate (NULL);
       pagedir_destroy (pd);
     }
+  if( lock_held_by_current_thread (&filesys_lock)){
+    lock_release(&filesys_lock);
+  }
 }
 
 /* Sets up the CPU for running user code in the current
