@@ -161,7 +161,14 @@ void syscall_handler (struct intr_frame *f)
             pagedir_get_page (thread_current ()->pagedir, file) == NULL)
           syscall_error (f);
 
-        f->eax = filesys_remove (file);
+        lock_acquire (&filesys_lock);
+        if (filesys_remove (file)==NULL){
+          f->eax = false;
+        }
+        else{
+          f->eax = true;
+        }
+        lock_release (&filesys_lock);        
         break;
 
       case SYS_OPEN: /* Open a file. */

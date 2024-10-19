@@ -21,6 +21,8 @@
 static thread_func start_process NO_RETURN;
 static bool load (const char *cmdline, void (**eip) (void), void **esp);
 
+extern struct lock filesys_lock;
+
 /* Starts a new thread running a user program loaded from
    FILENAME.  The new thread may be scheduled (and may even exit)
    before process_execute() returns.  Returns the new process's
@@ -73,17 +75,6 @@ static void start_process (void *file_name_)
       thread_current ()->exit_status = -1;
       sema_up (&thread_current ()->sema_load);
       thread_exit ();
-    }
-  else
-    {
-      struct file *executable = filesys_open (file_name);
-
-      if (executable != NULL)
-        {
-          file_deny_write (executable);
-
-          thread_current ()->executable_file = executable;
-        }
     }
 
   palloc_free_page (file_name);
@@ -149,12 +140,16 @@ void process_exit (void)
   struct thread *cur = thread_current ();
   uint32_t *pd;
 
-  if (thread_current ()->executable_file != NULL)
-    {
-      file_allow_write (thread_current ()->executable_file); // Allow writes to the file again
-      file_close (thread_current ()->executable_file); // Close the file
-      thread_current ()->executable_file = NULL;
-    }
+    // if(thread_current()->executable_file!=NULL){
+    //   file_allow_write(thread_current()->executable_file);
+    // }
+    
+  while(!list_empty(&cur->file_descriptors)){
+    struct list_elem *e = list_pop_front (&cur->file_descriptors);
+    struct file_descriptor *desc = list_entry(e, struct file_descriptor, file_elem);
+    file_close(desc->open_file);
+    free(desc); 
+  }
   /* Destroy the current process's page directory and switch back
      to the kernel-only page directory. */
   pd = cur->pagedir;
@@ -283,7 +278,9 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
   process_activate ();
 
   /* Open executable file. */
+  lock_acquire(&filesys_lock);
   file = filesys_open (token);
+  lock_release(&filesys_lock);
   if (file == NULL)
     {
       printf ("load: %s: open failed\n", token);
@@ -299,6 +296,10 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
       printf ("load: %s: error loading executable\n", token);
       goto done;
     }
+  else{
+    file_deny_write (file);
+    thread_current ()->executable_file = file;
+  }
 
   /* Read program headers. */
   file_ofs = ehdr.e_phoff;
@@ -368,10 +369,8 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
   *eip = (void (*) (void)) ehdr.e_entry;
 
   success = true;
-
 done:
   /* We arrive here whether the load is successful or not. */
-  file_close (file);
   return success;
 }
 
