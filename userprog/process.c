@@ -202,7 +202,7 @@ struct Elf32_Phdr
 #define PF_W 2 /* Writable. */
 #define PF_R 4 /* Readable. */
 
-static bool setup_stack (void **esp, char *filename);
+static bool setup_stack (void **esp, char *filename, char* args);
 static bool validate_segment (const struct Elf32_Phdr *, struct file *);
 static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
                           uint32_t read_bytes, uint32_t zero_bytes,
@@ -223,8 +223,13 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
   int i;
   char *token;
   char *rest;
-
+  // Jake start driving
+  printf("filename passed to load: %s\n", file_name);
   token = strtok_r (file_name, " ", &rest);
+  // printf("filename after split: %s\n", file_name);
+  // printf("token after split: %s\n", token);
+  // printf("rest after split: %s\n", rest);
+  // Jake end driving
   /* Allocate and activate page directory. */
   t->pagedir = pagedir_create ();
   if (t->pagedir == NULL)
@@ -248,7 +253,6 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
       printf ("load: %s: error loading executable\n", token);
       goto done;
     }
-    // Milan stop driving
 
   /* Read program headers. */
   file_ofs = ehdr.e_phoff;
@@ -311,7 +315,7 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
     }
 
   /* Set up stack. */
-  if (!setup_stack (esp, file_name))
+  if (!setup_stack (esp, token, rest))
     goto done;
 
   /* Start address. */
@@ -434,10 +438,14 @@ static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
 
 /* Create a minimal stack by mapping a zeroed page at the top of
    user virtual memory. */
-static bool setup_stack (void **esp, char *filename)
+static bool setup_stack (void **esp, char *filename, char* args)
 {
   // Milan start driving
   printf("in setup_stack\n");
+  // Jake start driving
+  printf("filename passed into setup: %s\n", filename);
+  printf("args passed into setup: %s\n", args);
+
   uint8_t *kpage;
   bool success = false;
 
@@ -452,38 +460,53 @@ static bool setup_stack (void **esp, char *filename)
     }
   char *token;
   char *rest;
-  char *sp = PHYS_BASE;
 
+  char *sp = *esp;
+  // printf("new SP: \t%p\n", sp);
   uint32_t num_args = 0;
   char *argv[128];
 
-  for (token = strtok_r (filename, " ", &rest); token != NULL;
+  sp -= (strlen (filename) + 1);
+  argv[num_args] = sp;
+  num_args++;
+  memcpy (sp, filename, strlen (filename) + 1);
+  printf("filenamed added to stack: %s\n", filename);
+
+  for (token = strtok_r (args, " ", &rest); token != NULL;
        token = strtok_r (NULL, " ", &rest))
     {
       sp -= (strlen (token) + 1);
+      // printf("SP loop: \t%p\n", sp);
       argv[num_args] = sp;
       num_args++;
       memcpy (sp, token, strlen (token) + 1);
+      printf("in loop added: %s\n", sp);
     }
 
-  sp -= (((int) sp) % 4);
+  sp -= (((unsigned) sp) % 4);
+  // printf("SP pad: \t%p\n", sp);
   sp -= sizeof (char *);
+  // printf("SP null(1): \t%p\n", sp);
 
   for (int i = num_args - 1; i >= 0; i--)
     {
       sp -= sizeof (char *);
+      // printf("SP ptrs: \t%p\n", sp);
       *((char **) sp) = argv[i];
+      printf("in add pts loop added: %p\n", *((char **) sp));
     }
-
   sp -= sizeof (char *);
   *((char **) sp) = sp + sizeof (char *);
-
+  printf("setting arg v pointer: %p\n", *((char **) sp));
   sp -= sizeof (uint32_t);
   *((uint32_t *) sp) = num_args;
-
+  printf("setting arg c: %d\n", *((uint32_t *) sp));
+  // Jake stop driving
+  // printf("SP argc: \t%p\n", sp);
   sp -= sizeof (uint32_t);
+  // printf("SP return: \t%p\n", sp);
   *((uint32_t *) sp) = 0;
-  printf("done with setup stack\n");
+  // printf("done with setup stack\n");
   // Milan stop driving
   return success;
 }
