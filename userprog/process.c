@@ -21,6 +21,8 @@
 static thread_func start_process NO_RETURN;
 static bool load (const char *cmdline, void (**eip) (void), void **esp);
 
+extern struct lock filesys_lock;
+
 /* Starts a new thread running a user program loaded from
    FILENAME.  The new thread may be scheduled (and may even exit)
    before process_execute() returns.  Returns the new process's
@@ -43,23 +45,13 @@ tid_t process_execute (const char *file_name)
   strlcpy (fn_copy, file_name, PGSIZE);
 
   token = strtok_r (file_name, " ", &rest);
-
   // Milan start driving
-  struct file *executable = filesys_open(token);
-  
-  if(executable!=NULL){
-    file_deny_write(executable);
 
-    thread_current()->executable_file = executable;
-  } 
-  // Milan end driving
-  
   /* Create a new thread to execute FILE_NAME. */
   tid = thread_create (token, PRI_DEFAULT, start_process, fn_copy);
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy);
   // printf ("end process execute\n");
-  // Milan stop driving
   return tid;
 }
 
@@ -79,16 +71,19 @@ static void start_process (void *file_name_)
   success = load (file_name, &if_.eip, &if_.esp);
 
   /* If load failed, quit. */
+
+  if (!success)
+    {
+      thread_current ()->exit_status = -1;
+      sema_up (&thread_current ()->sema_load);
+      thread_exit ();
+    }
+
   palloc_free_page (file_name);
-  // Milan start driving
-  if (!success) {
-      thread_current()->exit_status = -1;
-      sema_up(&thread_current()->sema_load);  
-      thread_exit();
-  }
-  
-  sema_up(&thread_current()->sema_load);
-  // Milan end driving
+
+  sema_up (&thread_current ()->sema_load);
+  //  Milan end driving
+
   /* Start the user process by simulating a return from an
      interrupt, implemented by intr_exit (in
      threads/intr-stubs.S).  Because intr_exit takes all of its
@@ -134,7 +129,7 @@ int process_wait (tid_t child_tid UNUSED)
   // wait on a child's semaphore
   // Jake start driving
   // printf ("thread %d waiting on child %d\n", cur_thread->tid,
-          // child_thread->tid);
+  // child_thread->tid);
   sema_down (&child_thread->sema_wait);
 
   // cure zombie
@@ -142,8 +137,6 @@ int process_wait (tid_t child_tid UNUSED)
   list_remove (&child_thread->childelem);
   sema_up (&child_thread->sema_cure);
   // Jake end driving
-
-
 
   return child_thread->exit_status;
   // Jake end driving
@@ -154,7 +147,16 @@ void process_exit (void)
 {
   struct thread *cur = thread_current ();
   uint32_t *pd;
-
+  // Milan start driving
+  while (!list_empty (&cur->file_descriptors))
+    {
+      struct list_elem *e = list_pop_front (&cur->file_descriptors);
+      struct file_descriptor *desc =
+          list_entry (e, struct file_descriptor, file_elem);
+      file_close (desc->open_file);
+      free (desc);
+    }
+  // Milan end driving
   /* Destroy the current process's page directory and switch back
      to the kernel-only page directory. */
   pd = cur->pagedir;
@@ -286,7 +288,11 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
   process_activate ();
 
   /* Open executable file. */
+  // Milan start driving
+  lock_acquire (&filesys_lock);
   file = filesys_open (token);
+  lock_release (&filesys_lock);
+
   if (file == NULL)
     {
       printf ("load: %s: open failed\n", token);
@@ -302,7 +308,12 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
       printf ("load: %s: error loading executable\n", token);
       goto done;
     }
-
+  else
+    {
+      file_deny_write (file);
+      thread_current ()->executable_file = file;
+    }
+  // Milan end driving
   /* Read program headers. */
   file_ofs = ehdr.e_phoff;
   for (i = 0; i < ehdr.e_phnum; i++)
@@ -371,10 +382,8 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
   *eip = (void (*) (void)) ehdr.e_entry;
 
   success = true;
-
 done:
   /* We arrive here whether the load is successful or not. */
-  file_close (file);
   return success;
 }
 
