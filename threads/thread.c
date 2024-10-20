@@ -75,7 +75,6 @@ static void schedule (void);
 void thread_schedule_tail (struct thread *prev);
 static tid_t allocate_tid (void);
 
-
 /* Initializes the threading system by transforming the code
    that's currently running into a thread.  This can't work in
    general and it is possible in this case only because loader.S
@@ -170,7 +169,6 @@ void thread_print_stats (void)
 tid_t thread_create (const char *name, int priority, thread_func *function,
                      void *aux)
 {
-
   struct thread *t;
   struct kernel_thread_frame *kf;
   struct switch_entry_frame *ef;
@@ -187,6 +185,10 @@ tid_t thread_create (const char *name, int priority, thread_func *function,
   /* Initialize thread. */
   init_thread (t, name, priority);
   tid = t->tid = allocate_tid ();
+  // Jake start driving
+  /* Initilizations for Project 2 */
+  list_push_back (&thread_current ()->children, &t->childelem);
+  // Jake end driving
 
   /* Stack frame for kernel_thread(). */
   kf = alloc_frame (t, sizeof *kf);
@@ -206,10 +208,10 @@ tid_t thread_create (const char *name, int priority, thread_func *function,
   /* Add to run queue. */
   thread_unblock (t);
   // Jake started driving
-  thread_yield();
+  thread_yield ();
   // Jake finished driving
 
-  //Milan started driving
+  // Milan started driving
   sema_up (&priority_sema);
   // Milan finished driving
   return tid;
@@ -249,7 +251,7 @@ void thread_unblock (struct thread *t)
   ASSERT (t->status == THREAD_BLOCKED);
   // list_push_back (&ready_list, &t->elem);
   // Milan started driving
-  list_insert_ordered(&ready_list, &t->elem, &thread_compare_priority, NULL);
+  list_insert_ordered (&ready_list, &t->elem, &thread_compare_priority, NULL);
   // Milan finished driving
 
   t->status = THREAD_READY;
@@ -285,7 +287,25 @@ tid_t thread_tid (void) { return thread_current ()->tid; }
 void thread_exit (void)
 {
   ASSERT (!intr_context ());
+  // Jake start driving
+  struct thread *cur_thread = thread_current ();
 
+  // free parent if waiting on child
+  sema_up (&cur_thread->sema_wait);
+
+  // become zombie
+  sema_down (&cur_thread->sema_cure);
+
+  // cure all child zombies
+  struct list_elem *e;
+
+  for (e = list_begin (&cur_thread->children);
+       e != list_end (&cur_thread->children); e = list_next (e))
+    {
+      struct thread *f = list_entry (e, struct thread, childelem);
+      sema_up (&f->sema_cure);
+    }
+    // Jake end driving
 #ifdef USERPROG
   process_exit ();
 #endif
@@ -295,6 +315,7 @@ void thread_exit (void)
      when it calls thread_schedule_tail(). */
   intr_disable ();
   list_remove (&thread_current ()->allelem);
+
   thread_current ()->status = THREAD_DYING;
   schedule ();
   NOT_REACHED ();
@@ -312,10 +333,11 @@ void thread_yield (void)
   old_level = intr_disable ();
   if (cur != idle_thread)
     {
-      //Milan started driving
-      // list_push_back (&ready_list, &cur->elem);
-      list_insert_ordered(&ready_list, &cur->elem, &thread_compare_priority, NULL);
-      //Milan finished driving
+      // Milan started driving
+      //  list_push_back (&ready_list, &cur->elem);
+      list_insert_ordered (&ready_list, &cur->elem, &thread_compare_priority,
+                           NULL);
+      // Milan finished driving
     }
 
   cur->status = THREAD_READY;
@@ -484,13 +506,16 @@ static void init_thread (struct thread *t, const char *name, int priority)
   t->priority = priority;
   t->magic = THREAD_MAGIC;
 
-  list_init(&t->lock_waiters);
+  // Jake start driving
+  list_init (&t->children);
+  list_init (&t->lock_waiters);
   old_level = intr_disable ();
   list_push_back (&all_list, &t->allelem);
   intr_set_level (old_level);
-  //Rahik started driving
   sema_init (&t->sema_sleep, 0);
-  //Rahik finished driving
+  sema_init (&t->sema_wait, 0);
+  sema_init (&t->sema_cure, 0);
+  // Jake end driving
 }
 
 /* Allocates a SIZE-byte frame at the top of thread T's stack and
@@ -518,7 +543,7 @@ static struct thread *next_thread_to_run (void)
     }
   else
     {
-      //Milan started driving
+      // Milan started driving
       struct list_elem *e = list_pop_front (&ready_list);
       return list_entry (e, struct thread, elem);
       // Milan finished driving
