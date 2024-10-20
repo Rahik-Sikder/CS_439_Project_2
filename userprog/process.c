@@ -441,10 +441,7 @@ static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
 static bool setup_stack (void **esp, char *filename, char* args)
 {
   // Milan start driving
-  printf("in setup_stack\n");
   // Jake start driving
-  printf("filename passed into setup: %s\n", filename);
-  printf("args passed into setup: %s\n", args);
 
   uint8_t *kpage;
   bool success = false;
@@ -470,7 +467,6 @@ static bool setup_stack (void **esp, char *filename, char* args)
   argv[num_args] = sp;
   num_args++;
   memcpy (sp, filename, strlen (filename) + 1);
-  printf("filenamed added to stack: %s\n", filename);
 
   for (token = strtok_r (args, " ", &rest); token != NULL;
        token = strtok_r (NULL, " ", &rest))
@@ -480,12 +476,13 @@ static bool setup_stack (void **esp, char *filename, char* args)
       argv[num_args] = sp;
       num_args++;
       memcpy (sp, token, strlen (token) + 1);
-      printf("in loop added: %s\n", sp);
     }
 
   sp -= (((unsigned) sp) % 4);
   // printf("SP pad: \t%p\n", sp);
   sp -= sizeof (char *);
+  // Rahik start driving
+  *((char **) sp) = NULL;
   // printf("SP null(1): \t%p\n", sp);
 
   for (int i = num_args - 1; i >= 0; i--)
@@ -493,21 +490,21 @@ static bool setup_stack (void **esp, char *filename, char* args)
       sp -= sizeof (char *);
       // printf("SP ptrs: \t%p\n", sp);
       *((char **) sp) = argv[i];
-      printf("in add pts loop added: %p\n", *((char **) sp));
     }
   sp -= sizeof (char *);
   *((char **) sp) = sp + sizeof (char *);
-  printf("setting arg v pointer: %p\n", *((char **) sp));
   sp -= sizeof (uint32_t);
   *((uint32_t *) sp) = num_args;
-  printf("setting arg c: %d\n", *((uint32_t *) sp));
   // Jake stop driving
   // printf("SP argc: \t%p\n", sp);
   sp -= sizeof (uint32_t);
   // printf("SP return: \t%p\n", sp);
   *((uint32_t *) sp) = 0;
-  // printf("done with setup stack\n");
+  // printf("done with setup :)stack\n");
   // Milan stop driving
+  hex_dump((uintptr_t) sp, sp, (uintptr_t) PHYS_BASE - (uintptr_t) sp, true);
+  *esp = sp;
+  // Rahik stop driving
   return success;
 }
 
