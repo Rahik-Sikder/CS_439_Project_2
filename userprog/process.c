@@ -147,6 +147,7 @@ void process_exit (void)
 {
   struct thread *cur = thread_current ();
   uint32_t *pd;
+  // Jake start driving
   // Milan start driving
   while (!list_empty (&cur->file_descriptors))
     {
@@ -157,6 +158,7 @@ void process_exit (void)
       free (desc);
     }
   // Milan end driving
+
   /* Destroy the current process's page directory and switch back
      to the kernel-only page directory. */
   pd = cur->pagedir;
@@ -173,6 +175,11 @@ void process_exit (void)
       pagedir_activate (NULL);
       pagedir_destroy (pd);
     }
+  if (lock_held_by_current_thread (&filesys_lock))
+    {
+      lock_release (&filesys_lock);
+    }
+  // Jake end driving
 }
 
 /* Sets up the CPU for running user code in the current
@@ -275,11 +282,7 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
   char *token;
   char *rest;
   // Jake start driving
-  // printf("filename passed to load: %s\n", file_name);
   token = strtok_r (file_name, " ", &rest);
-  // printf("filename after split: %s\n", file_name);
-  // printf("token after split: %s\n", token);
-  // printf("rest after split: %s\n", rest);
   // Jake end driving
   /* Allocate and activate page directory. */
   t->pagedir = pagedir_create ();
@@ -517,7 +520,6 @@ static bool setup_stack (void **esp, char *filename, char *args)
   char *rest;
 
   char *sp = *esp;
-  // printf("new SP: \t%p\n", sp);
   uint32_t num_args = 0;
   char *argv[128];
 
@@ -537,16 +539,13 @@ static bool setup_stack (void **esp, char *filename, char *args)
     }
 
   sp -= (((unsigned) sp) % 4);
-  // printf("SP pad: \t%p\n", sp);
   sp -= sizeof (char *);
   // Rahik start driving
   *((char **) sp) = NULL;
-  // printf("SP null(1): \t%p\n", sp);
 
   for (int i = num_args - 1; i >= 0; i--)
     {
       sp -= sizeof (char *);
-      // printf("SP ptrs: \t%p\n", sp);
       *((char **) sp) = argv[i];
     }
   sp -= sizeof (char *);
@@ -554,15 +553,9 @@ static bool setup_stack (void **esp, char *filename, char *args)
   sp -= sizeof (uint32_t);
   *((uint32_t *) sp) = num_args;
   // Jake stop driving
-  // printf("SP argc: \t%p\n", sp);
   sp -= sizeof (uint32_t);
-  // printf("SP return: \t%p\n", sp);
   *((uint32_t *) sp) = 0;
-  // printf("done with setup :)stack\n");
   // Milan stop driving
-  // hex_dump((uintptr_t) sp, sp, (uintptr_t) PHYS_BASE - (uintptr_t) sp, true);
-  // Probably want to compute this ahead of time and do at start of 
-  // ASSERT ((uint32_t) sp <= (uint32_t) PHYS_BASE -  (uint32_t) PGSIZE);
 
   *esp = sp;
   // Rahik stop driving
