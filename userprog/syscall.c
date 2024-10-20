@@ -29,6 +29,7 @@ void syscall_handler (struct intr_frame *f)
   int *sp = (int *) f->esp;
   // Rahik start driving
   int syscall_number;
+  // Milan start driving
   if (!get_user_32bit (sp) || !validate_user_address (sp))
     {
       int status = -1;
@@ -45,6 +46,7 @@ void syscall_handler (struct intr_frame *f)
     }
   // Rahik end driving
   // Rahik end driving
+
   char *file;
   // Milan start driving
   struct thread *cur = thread_current ();
@@ -64,6 +66,7 @@ void syscall_handler (struct intr_frame *f)
         // Milan start driving
         int status = *(sp++);
         // Rahik start driving
+
         if (status < -1)
           status = -1;
         cur->exit_status = status; // Set exit status
@@ -76,7 +79,8 @@ void syscall_handler (struct intr_frame *f)
       case SYS_EXEC:
         // Jake start driving
         // Rahik start driving
-        char *cmd_line = *((char **) (sp++));
+        // Milan start driving
+        char *cmd_line = (char *) (sp++);
         // Guide says there's a possible error here with this code apparently
         // returning b4 exec finishes loading the child -> don't really see
         // how it could given the current implementation but who knows
@@ -106,7 +110,8 @@ void syscall_handler (struct intr_frame *f)
         break;
       case SYS_REMOVE: /* Delete a file. */
         // Milan start driving
-        *file = (char *) *(sp++);
+        file = (char *) (sp++);
+
         if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
           {
             f->eax = -1;
@@ -117,7 +122,7 @@ void syscall_handler (struct intr_frame *f)
           }
         break;
       case SYS_OPEN: /* Open a file. */
-        *file = (char *) *(sp++);
+        file = (char *) (sp++);
         if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
           {
             f->eax = -1;
@@ -141,7 +146,7 @@ void syscall_handler (struct intr_frame *f)
           }
         break;
       case SYS_FILESIZE: /* Obtain a file's size. */
-        fd = *(int *) ((char *) f->esp + 4);
+        fd = *(sp++);
         // Jake start driving
         found_file = get_file_from_fd (fd);
 
@@ -152,14 +157,13 @@ void syscall_handler (struct intr_frame *f)
         f->eax = file_length (file);
         break;
       case SYS_READ: /* Read from a file. */
-        int fd = *(int *) ((char *) f->esp + 4);
-        buffer = *(char **) ((char *) f->esp + 8);
-        size = *(unsigned *) ((char *) f->esp + 12);
+        fd = *(sp++);
+        buffer = (char *) *(sp++);
+        size = (unsigned) *(sp++);
 
         if (!validate_user_address (buffer) ||
             !is_user_vaddr (buffer + size - 1))
           {
-        // Rahik end driving
             f->eax = -1;
             return;
           }
@@ -188,7 +192,8 @@ void syscall_handler (struct intr_frame *f)
         fd = *(sp++);
         buffer = (char *) *(sp++);
         size = (unsigned) *(sp++);
-        if (!validate_user_address (buffer))
+        if (!validate_user_address (buffer) ||
+            !is_user_vaddr (buffer + size - 1))
           {
             f->eax = -1;
             return;
@@ -215,8 +220,8 @@ void syscall_handler (struct intr_frame *f)
           }
         break;
       case SYS_SEEK: /* Change position in a file. */
-        fd = *(int *) ((char *) f->esp + 4);
-        unsigned position = *(unsigned *) ((char *) f->esp + 8);
+        fd = *(sp++);
+        unsigned position = (unsigned) *(sp++);
 
         found_file = get_file_from_fd (fd);
 
@@ -232,7 +237,7 @@ void syscall_handler (struct intr_frame *f)
 
         break;
       case SYS_TELL: /* Report current position in a file. */
-        fd = *(int *) ((char *) f->esp + 4);
+        fd = *(sp++);
         found_file = get_file_from_fd (fd);
         if (file == NULL)
           {
@@ -245,8 +250,9 @@ void syscall_handler (struct intr_frame *f)
 
         break;
       case SYS_CLOSE:
-        fd = *(int *) ((char *) f->esp + 4);
+        fd = *(sp++);
         // Jake end driving
+        // Milan end driving
         struct list_elem *e;
 
         for (e = list_begin (&cur->file_descriptors);
