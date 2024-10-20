@@ -127,7 +127,7 @@ static void page_fault (struct intr_frame *f)
      See [IA32-v2a] "MOV--Move to/from Control Registers" and
      [IA32-v3a] 5.15 "Interrupt 14--Page Fault Exception
      (#PF)". */
-  asm("movl %%cr2, %0" : "=r"(fault_addr));
+  asm ("movl %%cr2, %0" : "=r"(fault_addr));
 
   /* Turn interrupts back on (they were only off so that we could
      be assured of reading CR2 before it changed). */
@@ -149,6 +149,8 @@ static void page_fault (struct intr_frame *f)
           write ? "writing" : "reading", user ? "user" : "kernel");
 
   printf ("There is no crying in Pintos!\n");
-
+  // Jake started driving
+  thread_current ()->exit_status = -1;
+  // Jake end driving
   kill (f);
 }

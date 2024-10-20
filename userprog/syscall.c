@@ -27,7 +27,6 @@ void syscall_error (struct intr_frame *f)
   struct thread *cur = thread_current (); // Get current thread/process
   cur->exit_status = status;              // Set exit status
   f->eax = status;
-  printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
   thread_exit ();
   return -1;
 }
@@ -70,9 +69,7 @@ void syscall_handler (struct intr_frame *f)
         if (status < -1)
           status = -1;
         cur->exit_status = status; // Set exit status
-        // Milan end driving
-        printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
-        // Rahik end driving
+        
         thread_exit ();
         // Milan stop driving
         break;
@@ -105,13 +102,27 @@ void syscall_handler (struct intr_frame *f)
         // Rahik start driving
         file = (char *) *(sp++);
         unsigned initial_size = *(unsigned *) (sp++);
-
-        if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
-          return syscall_error (f);
-
-        // printf("input string '%s' length of %d with initial size %d\n",
-        // file, strlen (file), initial_size);
-        f->eax = filesys_create (file, initial_size);
+        // Jake start driving
+        // Check if the file pointer is NULL or an invalid user address
+        if (!get_user_32bit(file) || file == NULL) {
+            f->eax = 0; // Indicate failure
+            cur->exit_status = -1;              // Set exit status
+            
+            thread_exit ();
+        } else {
+            // If the file name is an empty string, it should also fail
+            if (strlen(file) == 0) {
+                f->eax = 0; // File name is empty, indicate failure
+                cur->exit_status = -1;              // Set exit status
+                
+                thread_exit ();
+            } else {
+                // Attempt to create the file
+                bool success = filesys_create(file, initial_size);
+                f->eax = success;
+            }
+        }
+        // Jake end driving
         break;
 
       case SYS_REMOVE: /* Delete a file. */

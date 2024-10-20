@@ -185,10 +185,9 @@ tid_t thread_create (const char *name, int priority, thread_func *function,
   /* Initialize thread. */
   init_thread (t, name, priority);
   tid = t->tid = allocate_tid ();
-  // Jake start driving
+
   /* Initilizations for Project 2 */
   list_push_back (&thread_current ()->children, &t->childelem);
-  // Jake end driving
 
   /* Stack frame for kernel_thread(). */
   kf = alloc_frame (t, sizeof *kf);
@@ -289,12 +288,16 @@ void thread_exit (void)
   ASSERT (!intr_context ());
   // Jake start driving
   struct thread *cur_thread = thread_current ();
-  
+  // Jake started driving
+  printf ("%s: exit(%d)\n", cur_thread->name, cur_thread->exit_status);
+  // Jake stopped driving
 
   // free parent if waiting on child
+  // printf ("thread %d freeing parent\n", cur_thread->tid);
   sema_up (&cur_thread->sema_wait);
 
   // become zombie
+  // printf ("thread %d becoming zombie\n", cur_thread->tid);
   sema_down (&cur_thread->sema_cure);
 
   // cure all child zombies
@@ -511,7 +514,7 @@ static void init_thread (struct thread *t, const char *name, int priority)
   t->curr_fd = 3;
   list_init (&t->children);
   list_init (&t->lock_waiters);
-  list_init(&t->file_descriptors);
+  list_init (&t->file_descriptors);
   // Milan end driving
   old_level = intr_disable ();
   list_push_back (&all_list, &t->allelem);
