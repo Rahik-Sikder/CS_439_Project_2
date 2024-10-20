@@ -29,6 +29,7 @@ void syscall_error (struct intr_frame *f)
   f->eax = status;
   printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
   thread_exit ();
+  return -1;
 }
 // Rahik end driving
 
@@ -37,27 +38,13 @@ void syscall_handler (struct intr_frame *f)
   // Rahik start driving
   // Get the system call number from the stack
   // Jake start driving
-  // Rahik start driving
   int *sp = (int *) f->esp;
-  // Rahik start driving
   int syscall_number;
-  // Milan start driving
-  if (!get_user_32bit (sp) || !validate_user_address (sp))
-    {
-      int status = -1;
-      struct thread *cur = thread_current (); // Get current thread/process
-      cur->exit_status = status;              // Set exit status
-      printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
-      thread_exit ();
-      return;
-    }
-  else
-    {
-      syscall_number = *sp;
-      sp++;
-    }
-  // Rahik end driving
-  // Rahik end driving
+  if (!get_user_32bit (sp))
+    return syscall_error (f);
+
+  syscall_number = *sp;
+  sp++;
 
   char *file;
   // Milan start driving
@@ -74,6 +61,7 @@ void syscall_handler (struct intr_frame *f)
       case SYS_HALT:
         shutdown_power_off ();
         break;
+
       case SYS_EXIT:
         // Milan start driving
         int status = *(sp++);
@@ -88,6 +76,7 @@ void syscall_handler (struct intr_frame *f)
         thread_exit ();
         // Milan stop driving
         break;
+
       case SYS_EXEC:
         // Jake start driving
         // Rahik start driving
@@ -95,18 +84,15 @@ void syscall_handler (struct intr_frame *f)
         // Rahik start driving
         char *cmd_line = (char *) *(sp++);
         if (!validate_user_address (cmd_line))
-          {
-            syscall_error (f);
-            return;
-          }
-        // Rahik end driving
+          return syscall_error (f);
+
         // Guide says there's a possible error here with this code apparently
         // returning b4 exec finishes loading the child -> don't really see
         // how it could given the current implementation but who knows
         tid_t result = process_execute (cmd_line);
         f->eax = result;
-        return;
         break;
+
       case SYS_WAIT: /* Wait for a child process to die. */
         tid_t child = *(tid_t *) sp++;
         // Jake start driving
@@ -114,85 +100,70 @@ void syscall_handler (struct intr_frame *f)
         f->eax = exit_status;
         return;
         break;
+
       case SYS_CREATE: /* Create a file. */
         // Rahik start driving
         file = (char *) *(sp++);
         unsigned initial_size = *(unsigned *) (sp++);
 
         if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
-          {
-            syscall_error (f);
-          }
-        else
-          {
-            // printf("input string '%s' length of %d with initial size %d\n",
-            // file, strlen (file), initial_size);
-            int status = filesys_create (file, initial_size);
-            f->eax = status;
-          }
-        // Rahik end driving
+          return syscall_error (f);
+
+        // printf("input string '%s' length of %d with initial size %d\n",
+        // file, strlen (file), initial_size);
+        f->eax = filesys_create (file, initial_size);
         break;
+
       case SYS_REMOVE: /* Delete a file. */
         // Milan start driving
 
         file = (char *) *(sp++);
         if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
-          {
-            f->eax = -1;
-          }
-        else
-          {
-            f->eax = filesys_remove (file);
-          }
+          syscall_error (f);
+
+        f->eax = filesys_remove (file);
         break;
+
       case SYS_OPEN: /* Open a file. */
         file = (char *) *(sp++);
+        // Milan start driving
         if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
+          return syscall_error (f);
+
+        struct file *opened_file = filesys_open (file);
+        struct file_descriptor *fd_entry =
+            malloc (sizeof (struct file_descriptor));
+        if (fd_entry == NULL)
           {
-            syscall_error (f);
-            return;
+            file_close (opened_file);
+            return syscall_error (f);
           }
-        else
-          {
-            // Milan start driving
-            struct file *opened_file = filesys_open (file);
-            struct file_descriptor *fd_entry =
-                malloc (sizeof (struct file_descriptor));
-            if (fd_entry == NULL)
-              {
-                file_close (opened_file);
-                f->eax = -1;
-                syscall_error (f);
-                return;
-              }
-            fd_entry->fd = cur->curr_fd;
-            cur->curr_fd++;
-            fd_entry->open_file = opened_file;
-            list_push_back (&cur->file_descriptors, &fd_entry->file_elem);
-            f->eax = fd_entry->fd;
-          }
+        fd_entry->fd = cur->curr_fd;
+        cur->curr_fd++;
+        fd_entry->open_file = opened_file;
+        list_push_back (&cur->file_descriptors, &fd_entry->file_elem);
+        f->eax = fd_entry->fd;
         break;
+        // Milan end driving
+
       case SYS_FILESIZE: /* Obtain a file's size. */
         fd = *(sp++);
         found_file = get_file_from_fd (fd);
 
         if (found_file == NULL)
-          {
-            syscall_error (f);
-            return;
-          }
-        f->eax = file_length (file);
+            return syscall_error (f);
+            
+        f->eax = file_length (found_file);
         break;
+
       case SYS_READ: /* Read from a file. */
         fd = *(sp++);
         buffer = (char *) *(sp++);
         size = (unsigned) *(sp++);
         if (!validate_user_address (buffer) ||
             !is_user_vaddr (buffer + size - 1))
-          {
-            syscall_error (f);
-            return;
-          }
+            return syscall_error (f);
+        
         if (fd == 0)
           {
             for (unsigned i = 0; i < size; i++)
@@ -205,31 +176,28 @@ void syscall_handler (struct intr_frame *f)
           {
             found_file = get_file_from_fd (fd);
 
-            if (file == NULL)
+            if (found_file == NULL)
               {
                 syscall_error (f);
                 return;
               }
 
-            f->eax = file_read (file, buffer, size);
+            f->eax = file_read (found_file, buffer, size);
           }
         break;
+
       case SYS_WRITE: /* Write to a file. */
         fd = *(sp++);
         buffer = (char *) *(sp++);
         size = (unsigned) *(sp++);
         if (!validate_user_address (buffer) ||
             !is_user_vaddr (buffer + size - 1))
-          {
-            f->eax = -1;
-            return;
-          }
+          return syscall_error (f);
+
         if (fd == 1)
           {
             putbuf (buffer, size);
             f->eax = size;
-            return;
-            // Jake end driving
           }
         else
           {
@@ -242,10 +210,10 @@ void syscall_handler (struct intr_frame *f)
               }
 
             int bytes_written = file_write (file, buffer, size);
-
             f->eax = bytes_written;
           }
         break;
+
       case SYS_SEEK: /* Change position in a file. */
         fd = *(sp++);
         unsigned position = (unsigned) *(sp++);
@@ -253,31 +221,21 @@ void syscall_handler (struct intr_frame *f)
         found_file = get_file_from_fd (fd);
 
         if (file == NULL)
-          {
-            syscall_error (f);
-          }
-        else
-          {
-            file_seek (file, position);
-            f->eax = 0;
-            return;
-          }
+          return syscall_error (f);
 
+        file_seek (file, position);
+        f->eax = 0;
         break;
+
       case SYS_TELL: /* Report current position in a file. */
         fd = *(sp++);
         found_file = get_file_from_fd (fd);
         if (file == NULL)
-          {
-            syscall_error (f);
-            return;
-          }
-        else
-          {
-            f->eax = file_tell (file);
-          }
+          return syscall_error (f);
 
+        f->eax = file_tell (file);
         break;
+
       case SYS_CLOSE:
         fd = *(sp++);
         // Jake end driving
@@ -300,6 +258,7 @@ void syscall_handler (struct intr_frame *f)
           }
         // Milan end driving
         break;
+
       default:
         printf ("system %d\n", syscall_number);
     }
