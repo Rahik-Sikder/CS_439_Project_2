@@ -14,10 +14,17 @@ void syscall_init (void)
   intr_register_int (0x30, 3, INTR_ON, syscall_handler, "syscall");
 }
 
-void syscall_handler (struct intr_frame *f) {
-    // Rahik start driving
-    // Get the system call number from the stack
-    // Jake start driving
+void syscall_handler (struct intr_frame *f)
+{
+  // Rahik start driving
+  // Get the system call number from the stack
+  // Jake start driving
+  // Rahik start driving
+  int *sp = (int *) f->esp;
+  int syscall_number = *sp;
+  sp++;
+  // Rahik end driving
+
   if (!validate_user_address (f->esp))
     {
       return;
@@ -48,6 +55,17 @@ void syscall_handler (struct intr_frame *f) {
       case SYS_WAIT: /* Wait for a child process to die. */
         break;
       case SYS_CREATE: /* Create a file. */
+        // Rahik start driving
+        const char *file =  *(char *)((char*)f->esp + 4);  
+        unsigned initial_size = *(unsigned *)((char*)f->esp + 8); 
+
+        if (file == NULL || !is_user_vaddr(file) || strlen(file) == 0) {
+            f->eax = false;  
+        } else {
+            int status = filesys_create(file, initial_size);
+            f->eax = status; 
+        }
+        // Rahik end driving
         break;
       case SYS_REMOVE: /* Delete a file. */
         break;
