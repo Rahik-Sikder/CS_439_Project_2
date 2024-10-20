@@ -68,8 +68,24 @@ void syscall_handler (struct intr_frame *f)
         // Rahik end driving
         break;
       case SYS_REMOVE: /* Delete a file. */
+        // Milan start driving
+        const char *file =  *(char *)((char*)f->esp + 4);  
+        if (file == NULL || !is_user_vaddr(file) || strlen(file) == 0) {
+            f->eax = -1;
+        }
+        else{
+            f->eax = filesys_remove(file);
+        }
         break;
       case SYS_OPEN: /* Open a file. */
+        const char *file =  *(char *)((char*)f->esp + 4);  
+        if (file == NULL || !is_user_vaddr(file) || strlen(file) == 0) {
+            f->eax = -1;
+        }
+        else{
+            f->eax = filesys_open(file);
+        }
+        // Milan end driving
         break;
       case SYS_FILESIZE: /* Obtain a file's size. */
         break;
