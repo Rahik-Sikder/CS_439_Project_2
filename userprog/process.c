@@ -116,10 +116,18 @@ int process_wait (tid_t child_tid UNUSED)
     return -1;
 
   // wait on a child's semaphore
+  // Jake start driving
+  // printf ("thread %d waiting on child %d\n", cur_thread->tid,
+          // child_thread->tid);
   sema_down (&child_thread->sema_wait);
 
   // cure zombie
+  // printf ("thread %d curing child %d\n", cur_thread->tid, child_thread->tid);
+  list_remove (&child_thread->childelem);
   sema_up (&child_thread->sema_cure);
+  // Jake end driving
+
+
 
   return child_thread->exit_status;
   // Jake end driving

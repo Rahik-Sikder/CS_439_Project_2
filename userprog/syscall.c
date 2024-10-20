@@ -90,19 +90,24 @@ void syscall_handler (struct intr_frame *f)
         break;
       case SYS_WAIT: /* Wait for a child process to die. */
         tid_t child = *(tid_t *) sp++;
-        return process_wait (child);
+        // Jake start driving
+        int exit_status = process_wait (child);
+        f->eax = exit_status;
+        return;
         break;
       case SYS_CREATE: /* Create a file. */
         // Rahik start driving
-        *file = (char *) *(sp++);
+        file = (char *) *(sp++);
         unsigned initial_size = *(unsigned *) (sp++);
-
-        if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
+        if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0 ||
+            initial_size == 0)
           {
-            f->eax = false;
+            f->eax = -1;
           }
         else
           {
+            // printf("input string '%s' length of %d with initial size %d\n",
+            // file, strlen (file), initial_size);
             int status = filesys_create (file, initial_size);
             f->eax = status;
           }
@@ -110,8 +115,8 @@ void syscall_handler (struct intr_frame *f)
         break;
       case SYS_REMOVE: /* Delete a file. */
         // Milan start driving
-        file = (char *) (sp++);
 
+        file = (char *) *(sp++);
         if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
           {
             f->eax = -1;
@@ -122,7 +127,8 @@ void syscall_handler (struct intr_frame *f)
           }
         break;
       case SYS_OPEN: /* Open a file. */
-        file = (char *) (sp++);
+        file = (char *) *(sp++);
+
         if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
           {
             f->eax = -1;
@@ -201,7 +207,9 @@ void syscall_handler (struct intr_frame *f)
         if (fd == 1)
           {
             putbuf (buffer, size);
-            return size; // this return is needed -> should investigate more
+            f->eax = size;
+            return;
+            // Jake end driving
           }
         else
           {
