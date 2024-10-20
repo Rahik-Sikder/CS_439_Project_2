@@ -44,6 +44,16 @@ tid_t process_execute (const char *file_name)
 
   token = strtok_r (file_name, " ", &rest);
 
+  // Milan start driving
+  struct file *executable = filesys_open(token);
+  
+  if(executable!=NULL){
+    file_deny_write(executable);
+
+    thread_current()->executable_file = executable;
+  } 
+  // Milan end driving
+  
   /* Create a new thread to execute FILE_NAME. */
   tid = thread_create (token, PRI_DEFAULT, start_process, fn_copy);
   if (tid == TID_ERROR)
@@ -70,9 +80,15 @@ static void start_process (void *file_name_)
 
   /* If load failed, quit. */
   palloc_free_page (file_name);
-  if (!success)
-    thread_exit ();
-
+  // Milan start driving
+  if (!success) {
+      thread_current()->exit_status = -1;
+      sema_up(&thread_current()->sema_load);  
+      thread_exit();
+  }
+  
+  sema_up(&thread_current()->sema_load);
+  // Milan end driving
   /* Start the user process by simulating a return from an
      interrupt, implemented by intr_exit (in
      threads/intr-stubs.S).  Because intr_exit takes all of its

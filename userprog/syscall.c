@@ -9,11 +9,11 @@
 #include "filesys/file.h"
 
 static void syscall_handler (struct intr_frame *);
-
 bool validate_user_address (const void *addr);
 
 static struct file *get_file_from_fd (int fd);
 bool get_user_32bit (const void *src);
+bool get_user_pointer (const void *addr);
 
 void syscall_init (void)
 {
@@ -64,6 +64,8 @@ void syscall_handler (struct intr_frame *f)
   unsigned size;
   char *buffer;
   // Jake end driving
+  // Milan start driving
+  struct list_elem *e;
 
   switch (syscall_number)
     {
@@ -72,13 +74,20 @@ void syscall_handler (struct intr_frame *f)
         break;
 
       case SYS_EXIT:
-        // Milan start driving
         int status = *(sp++);
-        // Rahik start driving
-
         if (status < -1)
           status = -1;
         cur->exit_status = status; // Set exit status
+
+        if (thread_current ()->executable_file != NULL)
+          {
+            file_allow_write (
+                thread_current ()
+                    ->executable_file); // Allow writes to the file again
+            file_close (thread_current ()->executable_file); // Close the file
+            thread_current ()->executable_file = NULL;
+          }
+        // Milan end driving
 
         thread_exit ();
         // Milan stop driving
@@ -104,7 +113,25 @@ void syscall_handler (struct intr_frame *f)
         // how it could given the current implementation but who knows
         tid_t result = process_execute (cmd_copy);
         // Rahik end driving
+        // Milan start driving
+        struct thread *t;
+        for (e = list_begin (&cur->children); e != list_end (&cur->children);
+             e = list_next (e))
+          {
+            t = list_entry (e, struct thread, childelem);
 
+            if (t->tid == result)
+              {
+                sema_down (&t->sema_load);
+                break;
+              }
+          }
+        if (t->exit_status == -1)
+          {
+            f->eax = -1; // Loading failed, return error
+            return;
+          }
+        // Milan end driving
         f->eax = result;
         break;
 
@@ -208,6 +235,15 @@ void syscall_handler (struct intr_frame *f)
         if (!validate_user_address (buffer) ||
             !is_user_vaddr (buffer + size - 1))
           return syscall_error (f);
+        // Milan start driving
+        for (unsigned i = 0; i < size; i += PGSIZE)
+          {
+            if (!pagedir_get_page (thread_current ()->pagedir, buffer + i))
+              {
+                return syscall_error (f);
+              }
+          }
+        // Milan end driving
 
         if (fd == 0)
           {
@@ -223,8 +259,15 @@ void syscall_handler (struct intr_frame *f)
 
             if (found_file == NULL)
               return syscall_fail_return (f);
+            // Milan start driving
+            int read_bytes = file_read (found_file, buffer, size);
 
-            f->eax = file_read (found_file, buffer, size);
+            if (read_bytes < 0)
+              {
+                return syscall_fail_return (f);
+              }
+            f->eax = read_bytes;
+            // Milan emd driving
           }
         break;
 
@@ -236,6 +279,15 @@ void syscall_handler (struct intr_frame *f)
             !is_user_vaddr (buffer + size - 1) ||
             pagedir_get_page (thread_current ()->pagedir, buffer) == NULL)
           return syscall_error (f);
+        // Milan start driving
+        for (unsigned i = 0; i < size; i += PGSIZE)
+          {
+            if (!pagedir_get_page (thread_current ()->pagedir, buffer + i))
+              {
+                return syscall_error (f);
+              }
+          }
+        // Milan end driving
 
         if (fd == 1)
           {
@@ -250,6 +302,13 @@ void syscall_handler (struct intr_frame *f)
               return syscall_fail_return (f);
 
             int bytes_written = file_write (file, buffer, size);
+            // Milan start driving
+            if (bytes_written < 0)
+              {
+                return syscall_fail_return (f);
+              }
+            // Milan end driving
+
             f->eax = bytes_written;
           }
         break;
@@ -280,7 +339,6 @@ void syscall_handler (struct intr_frame *f)
         fd = *(sp++);
         // Jake end driving
         // Milan end driving
-        struct list_elem *e;
 
         for (e = list_begin (&cur->file_descriptors);
              e != list_end (&cur->file_descriptors); e = list_next (e))
@@ -346,10 +404,33 @@ bool get_user_32bit (const void *src)
   /* Check that all 4 bytes of the source address are in valid user memory */
   for (int i = 0; i < sizeof (uint32_t); i++)
     {
-      if (!validate_user_address ((uint8_t *) src + 1))
+      if (!validate_user_address ((uint8_t *) src + i))
         {
           return false;
         }
     }
+  return true;
 }
 // Jake end driving
+
+// Milan start driving
+bool get_user_pointer (const void *src)
+{
+  /* Check that all 4 bytes of the source address are in valid user memory */
+  for (const char *ptr = src;; ptr++)
+    {
+      /* Check if the current byte is a valid user address. */
+      if (!validate_user_address (ptr))
+        {
+          return false;
+        }
+
+      /* Stop the check once the null terminator is reached. */
+      if (*ptr == '\0')
+        {
+          break;
+        }
+    }
+  return true;
+}
+// Milan end driving
