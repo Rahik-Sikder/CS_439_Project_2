@@ -289,6 +289,7 @@ void thread_exit (void)
   ASSERT (!intr_context ());
   // Jake start driving
   struct thread *cur_thread = thread_current ();
+  
 
   // free parent if waiting on child
   sema_up (&cur_thread->sema_wait);
@@ -505,10 +506,13 @@ static void init_thread (struct thread *t, const char *name, int priority)
   t->stack = (uint8_t *) t + PGSIZE;
   t->priority = priority;
   t->magic = THREAD_MAGIC;
-
+  // Milan start driving
   // Jake start driving
+  t->curr_fd = 3;
   list_init (&t->children);
   list_init (&t->lock_waiters);
+  list_init(&t->file_descriptors);
+  // Milan end driving
   old_level = intr_disable ();
   list_push_back (&all_list, &t->allelem);
   intr_set_level (old_level);
