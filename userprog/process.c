@@ -27,20 +27,29 @@ static bool load (const char *cmdline, void (**eip) (void), void **esp);
    thread id, or TID_ERROR if the thread cannot be created. */
 tid_t process_execute (const char *file_name)
 {
+  // Milan start driving
+  printf("start process execute\n");
   char *fn_copy;
   tid_t tid;
+  char *token;
+  char *rest;
 
   /* Make a copy of FILE_NAME.
      Otherwise there's a race between the caller and load(). */
   fn_copy = palloc_get_page (0);
   if (fn_copy == NULL)
     return TID_ERROR;
+
   strlcpy (fn_copy, file_name, PGSIZE);
 
+  token = strtok_r (file_name, " ", &rest);
+
   /* Create a new thread to execute FILE_NAME. */
-  tid = thread_create (file_name, PRI_DEFAULT, start_process, fn_copy);
+  tid = thread_create (token, PRI_DEFAULT, start_process, fn_copy);
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy);
+  printf("end process execute\n");
+  // Milan stop driving
   return tid;
 }
 
@@ -70,7 +79,7 @@ static void start_process (void *file_name_)
      arguments on the stack in the form of a `struct intr_frame',
      we just point the stack pointer (%esp) to our stack frame
      and jump to it. */
-  asm volatile("movl %0, %%esp; jmp intr_exit" : : "g"(&if_) : "memory");
+  asm volatile ("movl %0, %%esp; jmp intr_exit" : : "g"(&if_) : "memory");
   NOT_REACHED ();
 }
 
@@ -83,7 +92,13 @@ static void start_process (void *file_name_)
 
    This function will be implemented in problem 2-2.  For now, it
    does nothing. */
-int process_wait (tid_t child_tid UNUSED) { return -1; }
+int process_wait (tid_t child_tid UNUSED)
+{
+  // Milan start driving
+  while (1)
+    ;
+  // Milan stop driving
+}
 
 /* Free the current process's resources. */
 void process_exit (void)
@@ -187,7 +202,7 @@ struct Elf32_Phdr
 #define PF_W 2 /* Writable. */
 #define PF_R 4 /* Readable. */
 
-static bool setup_stack (void **esp);
+static bool setup_stack (void **esp, char *filename);
 static bool validate_segment (const struct Elf32_Phdr *, struct file *);
 static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
                           uint32_t read_bytes, uint32_t zero_bytes,
@@ -199,13 +214,17 @@ static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
    Returns true if successful, false otherwise. */
 bool load (const char *file_name, void (**eip) (void), void **esp)
 {
+  // Milan start driving
   struct thread *t = thread_current ();
   struct Elf32_Ehdr ehdr;
   struct file *file = NULL;
   off_t file_ofs;
   bool success = false;
   int i;
+  char *token;
+  char *rest;
 
+  token = strtok_r (file_name, " ", &rest);
   /* Allocate and activate page directory. */
   t->pagedir = pagedir_create ();
   if (t->pagedir == NULL)
@@ -213,10 +232,10 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
   process_activate ();
 
   /* Open executable file. */
-  file = filesys_open (file_name);
+  file = filesys_open (token);
   if (file == NULL)
     {
-      printf ("load: %s: open failed\n", file_name);
+      printf ("load: %s: open failed\n", token);
       goto done;
     }
 
@@ -226,9 +245,10 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
       ehdr.e_machine != 3 || ehdr.e_version != 1 ||
       ehdr.e_phentsize != sizeof (struct Elf32_Phdr) || ehdr.e_phnum > 1024)
     {
-      printf ("load: %s: error loading executable\n", file_name);
+      printf ("load: %s: error loading executable\n", token);
       goto done;
     }
+    // Milan stop driving
 
   /* Read program headers. */
   file_ofs = ehdr.e_phoff;
@@ -291,7 +311,7 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
     }
 
   /* Set up stack. */
-  if (!setup_stack (esp))
+  if (!setup_stack (esp, file_name))
     goto done;
 
   /* Start address. */
@@ -414,8 +434,10 @@ static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
 
 /* Create a minimal stack by mapping a zeroed page at the top of
    user virtual memory. */
-static bool setup_stack (void **esp)
+static bool setup_stack (void **esp, char *filename)
 {
+  // Milan start driving
+  printf("in setup_stack\n");
   uint8_t *kpage;
   bool success = false;
 
@@ -428,6 +450,41 @@ static bool setup_stack (void **esp)
       else
         palloc_free_page (kpage);
     }
+  char *token;
+  char *rest;
+  char *sp = PHYS_BASE;
+
+  uint32_t num_args = 0;
+  char *argv[128];
+
+  for (token = strtok_r (filename, " ", &rest); token != NULL;
+       token = strtok_r (NULL, " ", &rest))
+    {
+      sp -= (strlen (token) + 1);
+      argv[num_args] = sp;
+      num_args++;
+      memcpy (sp, token, strlen (token) + 1);
+    }
+
+  sp -= (((int) sp) % 4);
+  sp -= sizeof (char *);
+
+  for (int i = num_args - 1; i >= 0; i--)
+    {
+      sp -= sizeof (char *);
+      *((char **) sp) = argv[i];
+    }
+
+  sp -= sizeof (char *);
+  *((char **) sp) = sp + sizeof (char *);
+
+  sp -= sizeof (uint32_t);
+  *((uint32_t *) sp) = num_args;
+
+  sp -= sizeof (uint32_t);
+  *((uint32_t *) sp) = 0;
+  printf("done with setup stack\n");
+  // Milan stop driving
   return success;
 }
 
