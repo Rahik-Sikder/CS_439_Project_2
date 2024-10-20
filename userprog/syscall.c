@@ -8,6 +8,7 @@
 #include "userprog/process.h"
 
 static void syscall_handler (struct intr_frame *);
+
 bool validate_user_address (const void *addr);
 
 void syscall_init (void)
@@ -22,16 +23,26 @@ void syscall_handler (struct intr_frame *f)
   // Jake start driving
   // Rahik start driving
   int *sp = (int *) f->esp;
-  int syscall_number = *sp;
-  char *file;
-  sp++;
-  // Rahik end driving
-
-  if (!validate_user_address (f->esp))
+  // Rahik start driving
+  int syscall_number;
+  if (!validate_user_address (sp))
     {
+      int status = -1;
+      struct thread *cur = thread_current (); // Get current thread/process
+      cur->exit_status = status;              // Set exit status
+      printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
+      thread_exit ();
       return;
     }
+  else
+    {
+      syscall_number = *sp;
+      sp++;
+    }
+  // Rahik end driving
+  // Rahik end driving
 
+  char *file;
   switch (syscall_number)
     {
       case SYS_HALT:
@@ -40,16 +51,19 @@ void syscall_handler (struct intr_frame *f)
       case SYS_EXIT:
         // MIlan start driving
         int status = *sp;
+        // Rahik start driving
+        if (status < -1)
+          status = -1;
         struct thread *cur = thread_current (); // Get current thread/process
         cur->exit_status = status;              // Set exit status
+        printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
+        // Rahik end driving
         thread_exit ();
         // Milan stop driving
         break;
       case SYS_EXEC:
         // Jake start driving
         char *cmd_line = *(char *) (sp++);
-        struct semaphore exec_sema;
-        sema_init (&exec_sema, 0);
         // Guide says there's a possible error here with this code apparently
         // returning b4 exec finishes loading the child -> don't really see
         // how it could given the current implementation but who knows
@@ -117,6 +131,7 @@ void syscall_handler (struct intr_frame *f)
         else
           {
             // idk yet, we do this later
+            printf ("file write, not yet implemented %d\n", syscall_number);
           }
         break;
       case SYS_SEEK: /* Change position in a file. */
@@ -126,7 +141,7 @@ void syscall_handler (struct intr_frame *f)
       case SYS_CLOSE:
         break;
       default:
-        // printf("system %d\n", syscall_number);
+        printf ("system %d\n", syscall_number);
     }
     // Jake end driving
     // Rahik end driving
