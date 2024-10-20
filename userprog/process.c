@@ -94,10 +94,12 @@ static void start_process (void *file_name_)
    does nothing. */
 int process_wait (tid_t child_tid UNUSED)
 {
+  // Jake start driving
   // Milan start driving
-  while (1)
-    ;
+  // while (1)
+  //   ;
   // Milan stop driving
+  // Jake stop driving
 }
 
 /* Free the current process's resources. */
@@ -502,7 +504,10 @@ static bool setup_stack (void **esp, char *filename, char* args)
   *((uint32_t *) sp) = 0;
   // printf("done with setup :)stack\n");
   // Milan stop driving
-  hex_dump((uintptr_t) sp, sp, (uintptr_t) PHYS_BASE - (uintptr_t) sp, true);
+  // hex_dump((uintptr_t) sp, sp, (uintptr_t) PHYS_BASE - (uintptr_t) sp, true);
+  // Probably want to compute this ahead of time and do at start of 
+  // ASSERT ((uint32_t) sp <= (uint32_t) PHYS_BASE -  (uint32_t) PGSIZE);
+
   *esp = sp;
   // Rahik stop driving
   return success;
