@@ -20,6 +20,18 @@ void syscall_init (void)
   intr_register_int (0x30, 3, INTR_ON, syscall_handler, "syscall");
 }
 
+// Rahik start driving
+void syscall_error (struct intr_frame *f)
+{
+  int status = -1;
+  struct thread *cur = thread_current (); // Get current thread/process
+  cur->exit_status = status;              // Set exit status
+  f->eax = status;
+  printf ("%s: exit(%d)\n", cur->name, cur->exit_status);
+  thread_exit ();
+}
+// Rahik end driving
+
 void syscall_handler (struct intr_frame *f)
 {
   // Rahik start driving
@@ -80,7 +92,14 @@ void syscall_handler (struct intr_frame *f)
         // Jake start driving
         // Rahik start driving
         // Milan start driving
-        char *cmd_line = (char *) (sp++);
+        // Rahik start driving
+        char *cmd_line = (char *) *(sp++);
+        if (!validate_user_address (cmd_line))
+          {
+            syscall_error (f);
+            return;
+          }
+        // Rahik end driving
         // Guide says there's a possible error here with this code apparently
         // returning b4 exec finishes loading the child -> don't really see
         // how it could given the current implementation but who knows
@@ -99,10 +118,10 @@ void syscall_handler (struct intr_frame *f)
         // Rahik start driving
         file = (char *) *(sp++);
         unsigned initial_size = *(unsigned *) (sp++);
-        if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0 ||
-            initial_size == 0)
+
+        if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
           {
-            f->eax = -1;
+            syscall_error (f);
           }
         else
           {
@@ -128,10 +147,10 @@ void syscall_handler (struct intr_frame *f)
         break;
       case SYS_OPEN: /* Open a file. */
         file = (char *) *(sp++);
-
         if (file == NULL || !is_user_vaddr (file) || strlen (file) == 0)
           {
-            f->eax = -1;
+            syscall_error (f);
+            return;
           }
         else
           {
@@ -143,6 +162,8 @@ void syscall_handler (struct intr_frame *f)
               {
                 file_close (opened_file);
                 f->eax = -1;
+                syscall_error (f);
+                return;
               }
             fd_entry->fd = cur->curr_fd;
             cur->curr_fd++;
@@ -153,12 +174,12 @@ void syscall_handler (struct intr_frame *f)
         break;
       case SYS_FILESIZE: /* Obtain a file's size. */
         fd = *(sp++);
-        // Jake start driving
         found_file = get_file_from_fd (fd);
 
         if (found_file == NULL)
           {
-            f->eax = -1;
+            syscall_error (f);
+            return;
           }
         f->eax = file_length (file);
         break;
@@ -166,14 +187,12 @@ void syscall_handler (struct intr_frame *f)
         fd = *(sp++);
         buffer = (char *) *(sp++);
         size = (unsigned) *(sp++);
-
         if (!validate_user_address (buffer) ||
             !is_user_vaddr (buffer + size - 1))
           {
-            f->eax = -1;
+            syscall_error (f);
             return;
           }
-
         if (fd == 0)
           {
             for (unsigned i = 0; i < size; i++)
@@ -185,9 +204,10 @@ void syscall_handler (struct intr_frame *f)
         else
           {
             found_file = get_file_from_fd (fd);
+
             if (file == NULL)
               {
-                f->eax = -1;
+                syscall_error (f);
                 return;
               }
 
@@ -215,10 +235,9 @@ void syscall_handler (struct intr_frame *f)
           {
             struct file *file =
                 get_file_from_fd (fd); // Retrieve the file using fd
-
             if (file == NULL)
               {
-                f->eax = -1; // Return error if file not found
+                syscall_error (f);
                 return;
               }
 
@@ -235,12 +254,13 @@ void syscall_handler (struct intr_frame *f)
 
         if (file == NULL)
           {
-            f->eax = -1;
+            syscall_error (f);
           }
         else
           {
             file_seek (file, position);
             f->eax = 0;
+            return;
           }
 
         break;
@@ -249,7 +269,8 @@ void syscall_handler (struct intr_frame *f)
         found_file = get_file_from_fd (fd);
         if (file == NULL)
           {
-            f->eax = -1;
+            syscall_error (f);
+            return;
           }
         else
           {
