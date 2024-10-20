@@ -510,7 +510,6 @@ static void init_thread (struct thread *t, const char *name, int priority)
   t->priority = priority;
   t->magic = THREAD_MAGIC;
   // Milan start driving
-  // Jake start driving
   t->curr_fd = 3;
   list_init (&t->children);
   list_init (&t->lock_waiters);
@@ -522,6 +521,8 @@ static void init_thread (struct thread *t, const char *name, int priority)
   sema_init (&t->sema_sleep, 0);
   sema_init (&t->sema_wait, 0);
   sema_init (&t->sema_cure, 0);
+  // Jake start driving
+  sema_init (&t->sema_load, 0);
   // Jake end driving
 }
 
