@@ -29,7 +29,7 @@ void syscall_handler (struct intr_frame *f)
   int *sp = (int *) f->esp;
   // Rahik start driving
   int syscall_number;
-  if (!get_user_32bit (sp))
+  if (!get_user_32bit (sp) || !validate_user_address (sp))
     {
       int status = -1;
       struct thread *cur = thread_current (); // Get current thread/process
@@ -75,12 +75,14 @@ void syscall_handler (struct intr_frame *f)
         break;
       case SYS_EXEC:
         // Jake start driving
-        char *cmd_line = *(char *) (sp++);
+        // Rahik start driving
+        char *cmd_line = *((char **) (sp++));
         // Guide says there's a possible error here with this code apparently
         // returning b4 exec finishes loading the child -> don't really see
         // how it could given the current implementation but who knows
         tid_t result = process_execute (cmd_line);
-        return result;
+        f->eax = result;
+        return;
         break;
       case SYS_WAIT: /* Wait for a child process to die. */
         tid_t child = *(tid_t *) sp++;
@@ -154,8 +156,10 @@ void syscall_handler (struct intr_frame *f)
         buffer = *(char **) ((char *) f->esp + 8);
         size = *(unsigned *) ((char *) f->esp + 12);
 
-        if (!validate_user_address (buffer))
+        if (!validate_user_address (buffer) ||
+            !is_user_vaddr (buffer + size - 1))
           {
+        // Rahik end driving
             f->eax = -1;
             return;
           }
@@ -238,6 +242,7 @@ void syscall_handler (struct intr_frame *f)
           {
             f->eax = file_tell (file);
           }
+
         break;
       case SYS_CLOSE:
         fd = *(int *) ((char *) f->esp + 4);
@@ -277,6 +282,8 @@ bool validate_user_address (const void *addr)
       return false;
     }
   return true;
+  // Rahik end driving
+  // Jake end driving
 }
 
 // Milan start driving
