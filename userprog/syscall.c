@@ -84,7 +84,11 @@ void syscall_handler (struct intr_frame *f)
         if (status < -1)
           status = -1;
         cur->exit_status = status; // Set exit status
-
+        // Rahik start driving
+        if(cur->executable_file!=NULL){
+          file_allow_write(cur->executable_file);
+        }
+        // Rahik end driving
         thread_exit ();
         // Milan stop driving
         break;
@@ -290,8 +294,12 @@ void syscall_handler (struct intr_frame *f)
           }
         if (fd == 1)
           {
+            // Rahik start driving
+            lock_acquire (&filesys_lock);
             putbuf (buffer, size);
             f->eax = size;
+            lock_release(&filesys_lock);
+            // Rahik end driving
           }
         else
           {

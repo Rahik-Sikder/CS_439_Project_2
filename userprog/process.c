@@ -147,8 +147,13 @@ void process_exit (void)
 {
   struct thread *cur = thread_current ();
   uint32_t *pd;
-  // Jake start driving
-  // Milan start driving
+  // Rahik start driving
+
+  if (thread_current ()->executable_file)
+    {
+      file_allow_write (thread_current ()->executable_file);
+    }
+
   while (!list_empty (&cur->file_descriptors))
     {
       struct list_elem *e = list_pop_front (&cur->file_descriptors);
@@ -157,7 +162,6 @@ void process_exit (void)
       file_close (desc->open_file);
       free (desc);
     }
-  // Milan end driving
 
   /* Destroy the current process's page directory and switch back
      to the kernel-only page directory. */
@@ -179,7 +183,7 @@ void process_exit (void)
     {
       lock_release (&filesys_lock);
     }
-  // Jake end driving
+  // Rahik start driving
 }
 
 /* Sets up the CPU for running user code in the current
@@ -311,11 +315,7 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
       printf ("load: %s: error loading executable\n", token);
       goto done;
     }
-  else
-    {
-      file_deny_write (file);
-      thread_current ()->executable_file = file;
-    }
+
   // Milan end driving
   /* Read program headers. */
   file_ofs = ehdr.e_phoff;
@@ -385,6 +385,11 @@ bool load (const char *file_name, void (**eip) (void), void **esp)
   *eip = (void (*) (void)) ehdr.e_entry;
 
   success = true;
+  // Rahik start driving
+  file_deny_write (file);
+  thread_current ()->executable_file = file;
+  // Rahik end driving
+  
 done:
   /* We arrive here whether the load is successful or not. */
   return success;
